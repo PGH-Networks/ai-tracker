@@ -1,22 +1,88 @@
 # AI Project Tracker
 
-A lightweight, single-file web application for tracking AI implementation projects across your organization. No installation, no build tools, no dependencies — just open `ai-project-tracker.html` in a browser and go.
+A web application for tracking AI implementation projects across your organization. Deployed as a containerized Node.js app on Azure with PostgreSQL for persistent storage.
+
+**Live:** [https://aitracker.pghnetworks.com](https://aitracker.pghnetworks.com)
 
 ---
 
 ## Overview
 
-AI Project Tracker provides a centralized dashboard for monitoring the status, progress, and roadmap of AI initiatives. It supports both a table view and a Kanban board, advanced filtering and search, and a three-horizon roadmap planner — all persisted locally in your browser.
+AI Project Tracker provides a centralized dashboard for monitoring the status, progress, and roadmap of AI initiatives. It supports both a table view and a Kanban board, advanced filtering and search, and a three-horizon roadmap planner — all backed by a PostgreSQL database.
+
+---
+
+## Architecture
+
+| Component | Technology |
+|-----------|-----------|
+| Frontend | HTML5, CSS3, Vanilla JavaScript (ES6+) |
+| Backend | Node.js + Express |
+| Database | Azure Database for PostgreSQL Flexible Server |
+| Hosting | Azure Container App |
+| Container Registry | Azure Container Registry |
+| CI/CD | GitHub Actions |
+| Domain | aitracker.pghnetworks.com (Cloudflare DNS) |
 
 ---
 
 ## Getting Started
 
-1. Open `ai-project-tracker.html` in any modern browser (Chrome, Firefox, Safari, Edge).
-2. Click **+ Add Project** to create your first project.
-3. Data is saved automatically to your browser's `localStorage` — no server required.
+### Prerequisites
+- [Node.js](https://nodejs.org/) 20+
+- PostgreSQL (local or remote)
 
-To share data across machines, use the **Export** button to download a JSON backup and **Import** to load it elsewhere.
+### Local Development
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/PGH-Networks/ai-tracker.git
+   cd ai-tracker
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set the database connection string:
+   ```bash
+   export DATABASE_URL="postgresql://user:password@localhost:5432/aitracker"
+   ```
+
+4. Start the server:
+   ```bash
+   npm start
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+The server automatically creates the required database tables on startup.
+
+---
+
+## Deployment
+
+The app is deployed to Azure Container Apps via GitHub Actions. Every push to `main` triggers:
+
+1. **Build** — Docker image is built in Azure Container Registry
+2. **Deploy** — Container App is updated with the new image
+
+### Azure Resources
+
+| Resource | Name |
+|----------|------|
+| Resource Group | `rg-aitracker` |
+| Container Registry | `aitrackeracr` |
+| PostgreSQL Server | `aitracker-db` |
+| Container App Environment | `aitracker-env` |
+| Container App | `aitracker-app` |
+
+### GitHub Secrets Required
+
+| Secret | Description |
+|--------|-------------|
+| `AZURE_CREDENTIALS` | Service principal JSON for Azure login |
 
 ---
 
@@ -54,7 +120,20 @@ Add and remove roadmap items independently from tracked projects.
 
 ### Import / Export
 - **Export**: Downloads all projects and roadmap data as a timestamped `.json` file.
-- **Import**: Loads a previously exported `.json` file, replacing current data.
+- **Import**: Loads a previously exported `.json` file into the database.
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/projects` | List all projects |
+| `POST` | `/api/projects` | Create a project |
+| `PUT` | `/api/projects/:id` | Update a project |
+| `DELETE` | `/api/projects/:id` | Delete a project |
+| `GET` | `/api/roadmap` | Get roadmap items by bucket |
+| `PUT` | `/api/roadmap` | Replace all roadmap items |
 
 ---
 
@@ -85,74 +164,40 @@ Add and remove roadmap items independently from tracked projects.
 
 ---
 
-## Data Persistence
+## Database Schema
 
-All data is stored in browser `localStorage` under the key `aiTrackerData`. Data is saved automatically after every create, edit, delete, or roadmap operation.
+```sql
+CREATE TABLE projects (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  type TEXT NOT NULL,
+  dept TEXT,
+  description TEXT,
+  tool TEXT,
+  use_case TEXT,
+  status TEXT DEFAULT 'next',
+  pct INTEGER DEFAULT 0,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-**Limitations:**
-- Data is browser- and device-specific. Clearing browser data will erase projects.
-- No real-time sync or multi-user collaboration.
-- Use Export/Import to back up or transfer data.
-
----
-
-## Data Format
-
-Exported files contain a JSON object with two top-level keys:
-
-```json
-{
-  "projects": [
-    {
-      "id": "unique-id",
-      "name": "Project name",
-      "type": "Automation",
-      "dept": "Operations",
-      "desc": "What this project does",
-      "tool": "Claude",
-      "use": "Internal",
-      "status": "doing",
-      "pct": 40,
-      "notes": "Milestones, blockers, next steps",
-      "createdAt": "2026-04-14T12:00:00.000Z"
-    }
-  ],
-  "roadmap": {
-    "soon": ["Item planned for 0–3 months"],
-    "mid": ["Item planned for 3–9 months"],
-    "later": ["Item planned for 9+ months"]
-  }
-}
+CREATE TABLE roadmap (
+  id SERIAL PRIMARY KEY,
+  bucket TEXT NOT NULL,
+  title TEXT NOT NULL,
+  sort_order INTEGER DEFAULT 0
+);
 ```
 
 **Status values:** `"next"` (Planned), `"doing"` (In Progress), `"done"` (Complete)
 
 ---
 
-## Technical Details
+## Docker
 
-| Aspect | Detail |
-|--------|--------|
-| Implementation | Single HTML file (~107 KB) |
-| Languages | HTML5, CSS3, Vanilla JavaScript (ES6+) |
-| Dependencies | None |
-| Storage | Browser `localStorage` |
-| Build tools | None required |
-| Browser support | Any modern browser with ES6+ and localStorage |
+Build and run locally:
 
----
-
-## Browser Requirements
-
-- ES6+ JavaScript (classes, arrow functions, template literals, destructuring)
-- `localStorage` API
-- CSS Grid and Flexbox
-- File API (for import/export)
-
-Any browser released after 2017 will work without issue.
-
----
-
-## Security Note
-
-The application uses an `esc()` utility to HTML-escape all user-provided content before rendering, preventing XSS from stored project data. All data stays local — nothing is sent to a server.
+```bash
+docker build -t aitracker .
+docker run -p 3000:3000 -e DATABASE_URL="postgresql://user:pass@host:5432/aitracker" aitracker
+```
