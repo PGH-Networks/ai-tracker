@@ -842,18 +842,29 @@ let sortCol = 'name';
 let sortDir = 'asc';
 
 // ---- LOAD / SAVE ----
-function loadData() {
+async function loadData() {
   try {
-    const p = localStorage.getItem('aitracker_projects');
-    const r = localStorage.getItem('aitracker_roadmap');
-    if (p) projects = JSON.parse(p);
-    if (r) roadmap = JSON.parse(r);
-  } catch(e) { projects = []; roadmap = { soon: [], mid: [], later: [] }; }
+    const [pRes, rRes] = await Promise.all([
+      fetch('/api/projects'),
+      fetch('/api/roadmap')
+    ]);
+    const pData = await pRes.json();
+    projects = pData.map(p => ({
+      id: p.id, name: p.name, type: p.type, dept: p.dept,
+      desc: p.description, tool: p.tool, use: p.use_case,
+      status: p.status, pct: p.pct, notes: p.notes,
+      createdAt: p.created_at
+    }));
+    roadmap = await rRes.json();
+  } catch(e) { console.error('Load error:', e); projects = []; roadmap = { soon: [], mid: [], later: [] }; }
 }
 
-function saveData() {
-  localStorage.setItem('aitracker_projects', JSON.stringify(projects));
-  localStorage.setItem('aitracker_roadmap', JSON.stringify(roadmap));
+async function saveRoadmapToServer() {
+  await fetch('/api/roadmap', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(roadmap)
+  });
 }
 
 // ---- HELPERS ----
@@ -1093,19 +1104,19 @@ function closeRoadmapModal() {
   document.getElementById('roadmapModal').classList.remove('open');
 }
 
-function saveRoadmapItem() {
+async function saveRoadmapItem() {
   const bucket = document.getElementById('roadmap-bucket').value;
   const text = document.getElementById('roadmap-text').value.trim();
   if (!text) { alert('Please enter an item.'); return; }
   roadmap[bucket].push(text);
-  saveData();
+  await saveRoadmapToServer();
   closeRoadmapModal();
   renderRoadmap();
 }
 
-function removeRoadmapItem(bucket, idx) {
+async function removeRoadmapItem(bucket, idx) {
   roadmap[bucket].splice(idx, 1);
-  saveData();
+  await saveRoadmapToServer();
   renderRoadmap();
 }
 
@@ -1151,20 +1162,20 @@ function closeModal() {
   document.getElementById('projectModal').classList.remove('open');
 }
 
-function saveProject() {
+async function saveProject() {
   const name = document.getElementById('f-name').value.trim();
   const type = document.getElementById('f-type').value.trim();
   const dept = document.getElementById('f-dept').value.trim();
   if (!name) { alert('Project name is required.'); return; }
   if (!type) { alert('Project type is required.'); return; }
 
-  const data = {
+  const apiData = {
     name,
     type,
     dept,
-    desc: document.getElementById('f-desc').value.trim(),
+    description: document.getElementById('f-desc').value.trim(),
     tool: document.getElementById('f-tool').value.trim(),
-    use: document.getElementById('f-use').value,
+    use_case: document.getElementById('f-use').value,
     status: document.getElementById('f-status').value,
     pct: Number(document.getElementById('f-pct').value),
     notes: document.getElementById('f-notes').value.trim(),
@@ -1172,23 +1183,31 @@ function saveProject() {
 
   const id = document.getElementById('editId').value;
   if (id) {
-    const idx = projects.findIndex(p => p.id === id);
-    if (idx >= 0) projects[idx] = { ...projects[idx], ...data };
+    await fetch('/api/projects/' + id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(apiData)
+    });
   } else {
-    projects.push({ id: uid(), createdAt: new Date().toISOString(), ...data });
+    apiData.id = uid();
+    await fetch('/api/projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(apiData)
+    });
   }
 
-  saveData();
+  await loadData();
   closeModal();
   renderAll();
 }
 
-function deleteProject() {
+async function deleteProject() {
   const id = document.getElementById('editId').value;
   if (!id) return;
   if (!confirm('Delete this project? This cannot be undone.')) return;
-  projects = projects.filter(p => p.id !== id);
-  saveData();
+  await fetch('/api/projects/' + id, { method: 'DELETE' });
+  await loadData();
   closeModal();
   renderAll();
 }
@@ -1210,15 +1229,33 @@ function handleImport(e) {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = function(ev) {
+  reader.onload = async function(ev) {
     try {
       const data = JSON.parse(ev.target.result);
-      if (data.projects) projects = data.projects;
-      if (data.roadmap) roadmap = data.roadmap;
-      saveData();
+      if (data.projects) {
+        for (const p of data.projects) {
+          const apiData = {
+            id: p.id || uid(),
+            name: p.name, type: p.type, dept: p.dept,
+            description: p.desc || p.description || '',
+            tool: p.tool, use_case: p.use || p.use_case || '',
+            status: p.status, pct: p.pct, notes: p.notes
+          };
+          await fetch('/api/projects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(apiData)
+          });
+        }
+      }
+      if (data.roadmap) {
+        roadmap = data.roadmap;
+        await saveRoadmapToServer();
+      }
+      await loadData();
       renderAll();
       alert('Imported successfully!');
-    } catch { alert('Invalid file format.'); }
+    } catch(err) { console.error(err); alert('Invalid file format.'); }
   };
   reader.readAsText(file);
   e.target.value = '';
@@ -1243,8 +1280,10 @@ document.addEventListener('keydown', function(e) {
 });
 
 // ---- INIT ----
-loadData();
-renderAll();
+(async () => {
+  await loadData();
+  renderAll();
+})();
 </script>
 </body>
 </html>
