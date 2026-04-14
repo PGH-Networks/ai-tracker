@@ -143,7 +143,7 @@ Add and remove roadmap items independently from tracked projects.
 |-------|-------------|---------|
 | Name | Project name | Free text (required) |
 | Type | Category of AI work | See [Project Types](#project-types) |
-| Department | Owning department | Help Desk, Operations, Finance, Sales & Marketing |
+| Department | Owning department | All, Help Desk, Operations, Finance, Sales & Marketing |
 | AI Tool | Primary tool in use | Claude, Hatz, Co-Pilot, N8N, Other |
 | Use Case | Audience / deployment scope | Internal, Client-Facing, Both, External / Public |
 | Status | Current lifecycle stage | Planned, In Progress, Complete |
