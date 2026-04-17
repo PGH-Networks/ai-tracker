@@ -146,6 +146,7 @@ Add and remove roadmap items independently from tracked projects.
 | Department | Owning department | All, Help Desk, Operations, Finance, Sales & Marketing |
 | AI Tool | Primary tool in use | Claude, Hatz, Co-Pilot, N8N, Other |
 | Use Case | Audience / deployment scope | Internal, Client-Facing, Both, External / Public |
+| Project Champion | Employee responsible for the project | Bill, Greg, Derek, Mark, Dylan, Isaac, Tony, Geno, Howard, Chris |
 | Status | Current lifecycle stage | Planned, In Progress, Complete |
 | Completion % | Numeric progress (0–100) | Integer |
 | Description | What the project does | Free text |
@@ -178,6 +179,7 @@ CREATE TABLE projects (
   status TEXT DEFAULT 'next',
   pct INTEGER DEFAULT 0,
   notes TEXT,
+  champion TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

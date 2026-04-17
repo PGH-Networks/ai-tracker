@@ -259,9 +259,13 @@
     border-radius: 6px;
     font-size: 0.75rem;
     font-weight: 600;
-    background: #f1f5f9;
-    color: var(--muted);
   }
+  .dept-all        { background: #f1f5f9; color: #475569; }
+  .dept-helpdesk   { background: #ffedd5; color: #c2410c; }
+  .dept-operations { background: #e0f2fe; color: #0369a1; }
+  .dept-finance    { background: #d1fae5; color: #065f46; }
+  .dept-sales      { background: #ffe4e6; color: #be123c; }
+  .dept-default    { background: #f1f5f9; color: #475569; }
 
   /* AI TOOL CHIP */
   .tool-chip {
@@ -270,9 +274,12 @@
     border-radius: 6px;
     font-size: 0.75rem;
     font-weight: 600;
-    background: #ede9fe;
-    color: #5b21b6;
   }
+  .tool-claude  { background: #fef3c7; color: #92400e; }
+  .tool-hatz    { background: #dbeafe; color: #1e40af; }
+  .tool-copilot { background: #ede9fe; color: #5b21b6; }
+  .tool-n8n     { background: #fee2e2; color: #991b1b; }
+  .tool-default { background: #f3f4f6; color: #374151; }
 
   /* USE CHIP */
   .use-chip {
@@ -281,8 +288,22 @@
     border-radius: 6px;
     font-size: 0.75rem;
     font-weight: 600;
-    background: #ccfbf1;
-    color: #0f766e;
+  }
+  .use-internal  { background: #dbeafe; color: #1e40af; }
+  .use-client    { background: #ccfbf1; color: #0f766e; }
+  .use-both      { background: #f5f3ff; color: #6d28d9; }
+  .use-external  { background: #ffedd5; color: #9a3412; }
+  .use-default   { background: #f3f4f6; color: #374151; }
+
+  /* CHAMPION CHIP */
+  .champion-chip {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #fdf4ff;
+    color: #7e22ce;
   }
 
   /* ROW ACTIONS */
@@ -786,8 +807,21 @@
             <option value="External / Public">External / Public</option>
           </select>
         </div>
-        <div class="form-group" style="display:flex;align-items:flex-end">
-          <!-- spacer -->
+        <div class="form-group">
+          <label>Project Champion</label>
+          <select id="f-champion">
+            <option value="">— Select Champion —</option>
+            <option value="Bill">Bill</option>
+            <option value="Greg">Greg</option>
+            <option value="Derek">Derek</option>
+            <option value="Mark">Mark</option>
+            <option value="Dylan">Dylan</option>
+            <option value="Isaac">Isaac</option>
+            <option value="Tony">Tony</option>
+            <option value="Geno">Geno</option>
+            <option value="Howard">Howard</option>
+            <option value="Chris">Chris</option>
+          </select>
         </div>
       </div>
       <div class="form-group">
@@ -854,7 +888,7 @@ async function loadData() {
       id: p.id, name: p.name, type: p.type, dept: p.dept,
       desc: p.description, tool: p.tool, use: p.use_case,
       status: p.status, pct: p.pct, notes: p.notes,
-      createdAt: p.created_at
+      champion: p.champion, createdAt: p.created_at
     }));
     roadmap = await rRes.json();
   } catch(e) { console.error('Load error:', e); projects = []; roadmap = { soon: [], mid: [], later: [] }; }
@@ -878,6 +912,25 @@ function statusLabel(s) {
 function fillClass(s) {
   return s === 'done' ? 'fill-done' : s === 'doing' ? 'fill-doing' : 'fill-next';
 }
+
+const DEPT_CLASS = {
+  'All': 'dept-all', 'Help Desk': 'dept-helpdesk',
+  'Operations': 'dept-operations', 'Finance': 'dept-finance',
+  'Sales & Marketing': 'dept-sales',
+};
+function deptClass(v) { return DEPT_CLASS[v] || 'dept-default'; }
+
+const TOOL_CLASS = {
+  'Claude': 'tool-claude', 'Hatz': 'tool-hatz',
+  'Co-Pilot': 'tool-copilot', 'N8N': 'tool-n8n',
+};
+function toolClass(v) { return TOOL_CLASS[v] || 'tool-default'; }
+
+const USE_CLASS = {
+  'Internal': 'use-internal', 'Client-Facing': 'use-client',
+  'Both': 'use-both', 'External / Public': 'use-external',
+};
+function useClass(v) { return USE_CLASS[v] || 'use-default'; }
 
 function getFiltered() {
   const search = document.getElementById('searchInput').value.toLowerCase();
@@ -968,6 +1021,7 @@ function renderTable(items) {
     { key: 'dept', label: 'Department' },
     { key: 'tool', label: 'AI Tool' },
     { key: 'use', label: 'Use' },
+    { key: 'champion', label: 'Champion' },
     { key: 'status', label: 'Status' },
     { key: 'pct', label: '% Complete' },
     { key: '_notes', label: 'Notes' },
@@ -995,9 +1049,10 @@ function renderTable(items) {
         <div class="project-name">${esc(p.name)}</div>
         <div class="project-type">${esc(p.type)}${p.desc ? ' · ' + esc(p.desc).slice(0,60) + (p.desc.length>60?'…':'') : ''}</div>
       </td>
-      <td><span class="dept-chip">${esc(p.dept||'—')}</span></td>
-      <td><span class="tool-chip">${esc(p.tool||'—')}</span></td>
-      <td><span class="use-chip">${esc(p.use||'—')}</span></td>
+      <td><span class="dept-chip ${deptClass(p.dept)}">${esc(p.dept||'—')}</span></td>
+      <td><span class="tool-chip ${toolClass(p.tool)}">${esc(p.tool||'—')}</span></td>
+      <td><span class="use-chip ${useClass(p.use)}">${esc(p.use||'—')}</span></td>
+      <td>${p.champion ? `<span class="champion-chip">${esc(p.champion)}</span>` : '—'}</td>
       <td><span class="status-badge status-${p.status}">${statusLabel(p.status)}</span></td>
       <td>
         <div class="progress-wrap">
@@ -1042,9 +1097,10 @@ function renderKanban(items) {
         <div class="kc-name">${esc(p.name)}</div>
         <div class="kc-desc">${esc(p.desc || p.type || '')}</div>
         <div class="kc-tags">
-          <span class="dept-chip">${esc(p.dept||'—')}</span>
-          <span class="tool-chip">${esc(p.tool||'—')}</span>
-          ${p.use ? `<span class="use-chip">${esc(p.use)}</span>` : ''}
+          <span class="dept-chip ${deptClass(p.dept)}">${esc(p.dept||'—')}</span>
+          <span class="tool-chip ${toolClass(p.tool)}">${esc(p.tool||'—')}</span>
+          ${p.use ? `<span class="use-chip ${useClass(p.use)}">${esc(p.use)}</span>` : ''}
+          ${p.champion ? `<span class="champion-chip">${esc(p.champion)}</span>` : ''}
         </div>
         <div class="kc-progress">
           <div class="kc-pct-label"><span>Progress</span><span>${pct}%</span></div>
@@ -1136,6 +1192,7 @@ function openAddModal() {
   document.getElementById('f-pct').value = 50;
   document.getElementById('pct-val').textContent = '50%';
   document.getElementById('f-notes').value = '';
+  document.getElementById('f-champion').value = '';
   document.getElementById('projectModal').classList.add('open');
   setTimeout(() => document.getElementById('f-name').focus(), 100);
 }
@@ -1156,6 +1213,7 @@ function openEditModal(id) {
   document.getElementById('f-pct').value = p.pct || 0;
   document.getElementById('pct-val').textContent = (p.pct||0) + '%';
   document.getElementById('f-notes').value = p.notes || '';
+  document.getElementById('f-champion').value = p.champion || '';
   document.getElementById('projectModal').classList.add('open');
 }
 
@@ -1180,6 +1238,7 @@ async function saveProject() {
     status: document.getElementById('f-status').value,
     pct: Number(document.getElementById('f-pct').value),
     notes: document.getElementById('f-notes').value.trim(),
+    champion: document.getElementById('f-champion').value,
   };
 
   const id = document.getElementById('editId').value;
