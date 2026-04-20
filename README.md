@@ -119,7 +119,10 @@ Three time-horizon buckets for future initiatives:
 | Mid-Term | 3–9 months |
 | Future Vision | 9+ months |
 
-Add and remove roadmap items independently from tracked projects. When an initiative is ready to become a project, hover the item and click **→ Project** to open the Add Project modal pre-filled with the item's title. On save, the roadmap item is automatically removed.
+Add and remove roadmap items independently from tracked projects. Each item displays two persistent action buttons:
+
+- **→ Project** — opens the Add Project modal pre-filled with the item's title; the roadmap item is automatically removed on save
+- **Remove** — deletes the roadmap item
 
 ### Import / Export
 - **Export**: Downloads all projects and roadmap data as a timestamped `.json` file.

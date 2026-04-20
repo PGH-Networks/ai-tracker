@@ -452,19 +452,18 @@
 
   .roadmap-item-text { flex: 1; }
   .roadmap-item .remove-roadmap {
-    border: none; background: none; cursor: pointer;
-    color: var(--muted); font-size: 0.85rem; padding: 0; line-height: 1;
-    opacity: 0; transition: opacity 0.15s;
+    border: 1px solid var(--border); background: white; cursor: pointer;
+    color: var(--danger); font-size: 0.72rem; padding: 2px 7px;
+    border-radius: 5px; white-space: nowrap; line-height: 1.6;
+    font-weight: 600;
   }
-  .roadmap-item:hover .remove-roadmap { opacity: 1; }
+  .roadmap-item .remove-roadmap:hover { background: var(--danger); color: white; border-color: var(--danger); }
   .roadmap-item .convert-project-btn {
     border: 1px solid var(--border); background: white; cursor: pointer;
     color: var(--primary); font-size: 0.72rem; padding: 2px 7px;
     border-radius: 5px; white-space: nowrap; line-height: 1.6;
-    opacity: 0; transition: opacity 0.15s;
     font-weight: 600;
   }
-  .roadmap-item:hover .convert-project-btn { opacity: 1; }
   .roadmap-item .convert-project-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
   .roadmap-soon { border-left-color: var(--primary); }
@@ -1154,7 +1153,7 @@ function renderRoadmap() {
       `<div class="roadmap-item ${cls}">
         <span class="roadmap-item-text">${esc(item)}</span>
         <button class="convert-project-btn" onclick="convertToProject('${bucket}',${i})" title="Convert to project">→ Project</button>
-        <button class="remove-roadmap" onclick="removeRoadmapItem('${bucket}',${i})" title="Remove">✕</button>
+        <button class="remove-roadmap" onclick="removeRoadmapItem('${bucket}',${i})" title="Remove">Remove</button>
       </div>`
     ).join('');
   });
