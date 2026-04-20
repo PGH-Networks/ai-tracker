@@ -53,7 +53,20 @@ Key functions: `renderAll()` → `renderTable()` / `renderKanban()` / `renderRoa
 
 ## Branding
 
-PGH Networks brand colors: navy `#02264F`, green `#68F98F`. The header uses a diagonal gradient between these. Status colors, progress bars, and kanban dots follow the same palette.
+PGH Networks brand colors: navy `#02264F`, green `#68F98F`. The header uses a diagonal gradient between these. All interactive accents (focus rings, active buttons, sort indicators, form saves) use `--primary: #02264F` — there is no purple in the design.
+
+**Typography:** [Syne](https://fonts.google.com/specimen/Syne) (600–800 weight) for headings and stat numbers; [DM Sans](https://fonts.google.com/specimen/DM+Sans) for body text. Loaded via Google Fonts in `<head>`. Applied via `h1, h2, h3, .stat-number { font-family: 'Syne', sans-serif; }`.
+
+### CSS Variables
+
+| Variable | Value | Used for |
+|----------|-------|----------|
+| `--primary` | `#02264F` | Buttons, focus, active states |
+| `--primary-dark` | `#175184` | Hover darken |
+| `--done-color` | `#68F98F` | Complete status |
+| `--doing-color` | `#02264F` | In Progress status |
+| `--next-color` | `#f59e0b` | Planned status |
+| `--info` | `#175184` | Avg Complete stat |
 
 ### Status Icons
 
@@ -69,9 +82,11 @@ CSS classes: `.status-icon` (32px, stat cards), `.status-badge-icon` (14px, tabl
 
 ### UI Layout
 
-- **Header** — Logo, title, Export JSON, Import buttons only.
-- **Controls bar** — Horizontal filter row (Search, Status, Department, AI Tool, Use) with labels stacked above inputs. `+ Add Project` button and Table/Kanban view toggle are right-aligned via `.view-toggle`.
-- **Stats bar** — 5 cards in a single row: Total, Complete, In Progress, Planned, Avg Complete.
+- **Header** — Logo, title, Export JSON, Import buttons. More vertical padding (`32px`) with Syne title and lighter subtitle.
+- **Stats bar** — 5 cards in a single row, each with a colored left-border accent matching its status color.
+- **Controls bar** — Horizontal filter row (Search, Status, Department, AI Tool, Use) with labels stacked above inputs (`flex-direction: column`). `+ Add Project` (navy) and Table/Kanban toggle are right-aligned via `.view-toggle`.
+- **Empty state** — Includes a live `+ Add Project` button so users can act without scrolling back to the controls bar.
+- **Roadmap header** — Plain text heading (no emoji), Syne font.
 
 ## Deployment
 
