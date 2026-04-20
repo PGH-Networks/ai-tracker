@@ -49,11 +49,29 @@ let currentView = 'table'; // or 'kanban'
 let sortCol, sortDir;
 ```
 
-Key functions: `renderAll()` → `renderTable()` / `renderKanban()` / `renderRoadmap()`. Filters computed in `getFiltered()`. Stats in `updateStats()`.
+Key functions: `renderAll()` → `renderTable()` / `renderKanban()` / `renderRoadmap()`. Filters computed in `getFiltered()`. Stats in `updateStats()`. `statusIcon(s)` returns an `<img>` tag for the appropriate SVG status icon.
 
 ## Branding
 
 PGH Networks brand colors: navy `#02264F`, green `#68F98F`. The header uses a diagonal gradient between these. Status colors, progress bars, and kanban dots follow the same palette.
+
+### Status Icons
+
+SVG icons live in `public/icons/` and are used in stat cards, table status badges, and kanban column headers:
+
+| File | Status |
+|------|--------|
+| `icon-done.svg` | Complete |
+| `icon-in-progress.svg` | In Progress |
+| `icon-planned.svg` | Planned |
+
+CSS classes: `.status-icon` (32px, stat cards), `.status-badge-icon` (14px, table badges), `.kanban-status-icon` (22px, kanban headers).
+
+### UI Layout
+
+- **Header** — Logo, title, Export JSON, Import buttons only.
+- **Controls bar** — Horizontal filter row (Search, Status, Department, AI Tool, Use) with labels stacked above inputs. `+ Add Project` button and Table/Kanban view toggle are right-aligned via `.view-toggle`.
+- **Stats bar** — 5 cards in a single row: Total, Complete, In Progress, Planned, Avg Complete.
 
 ## Deployment
 

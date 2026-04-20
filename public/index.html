@@ -102,8 +102,8 @@
   }
 
   .stat-number {
-    font-size: 1.8rem;
-    font-weight: 700;
+    font-size: 2.4rem;
+    font-weight: 800;
     line-height: 1;
   }
 
@@ -126,16 +126,16 @@
   .controls {
     display: flex;
     gap: 12px;
-    padding: 16px 32px;
-    align-items: center;
+    padding: 14px 32px;
+    align-items: flex-end;
     flex-wrap: wrap;
     border-bottom: 1px solid var(--border);
     background: white;
   }
 
-  .controls label { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+  .controls label { font-size: 0.72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
 
-  .filter-group { display: flex; align-items: center; gap: 8px; }
+  .filter-group { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 
   select, input[type="text"] {
     padding: 7px 12px;
@@ -150,7 +150,14 @@
 
   select:focus, input[type="text"]:focus { border-color: var(--primary); }
 
-  .view-toggle { margin-left: auto; display: flex; gap: 4px; }
+  .view-toggle { margin-left: auto; display: flex; gap: 4px; align-items: center; }
+
+  .btn-add-project {
+    background: #02264F;
+    color: white;
+    margin-right: 8px;
+  }
+  .btn-add-project:hover { background: #175184; transform: translateY(-1px); }
 
   .view-btn {
     padding: 7px 14px;
@@ -355,6 +362,10 @@
   .dot-done { background: var(--done-color); }
   .dot-doing { background: var(--doing-color); }
   .dot-next { background: var(--next-color); }
+
+  .status-icon { width: 32px; height: 32px; vertical-align: middle; margin-right: 6px; }
+  .kanban-status-icon { width: 22px; height: 22px; vertical-align: middle; }
+  .status-badge-icon { width: 14px; height: 14px; vertical-align: middle; margin-right: 3px; }
 
   .kanban-count {
     margin-left: auto;
@@ -652,16 +663,15 @@
   <div class="header-actions">
     <button class="btn btn-secondary" onclick="exportData()">⬇ Export JSON</button>
     <button class="btn btn-secondary" onclick="importData()">⬆ Import</button>
-    <button class="btn btn-primary" onclick="openAddModal()">+ Add Project</button>
   </div>
 </div>
 
 <!-- STATS BAR -->
 <div class="stats-bar">
   <div class="stat-card stat-total"><div class="stat-number" id="stat-total">0</div><div class="stat-label">Total Projects</div></div>
-  <div class="stat-card stat-done"><div class="stat-number" id="stat-done">0</div><div class="stat-label">✅ Complete</div></div>
-  <div class="stat-card stat-doing"><div class="stat-number" id="stat-doing">0</div><div class="stat-label">🔄 In Progress</div></div>
-  <div class="stat-card stat-next"><div class="stat-number" id="stat-next">0</div><div class="stat-label">🗺 Planned</div></div>
+  <div class="stat-card stat-done"><div class="stat-number" id="stat-done">0</div><div class="stat-label"><img src="/icons/icon-done.svg" class="status-icon">Complete</div></div>
+  <div class="stat-card stat-doing"><div class="stat-number" id="stat-doing">0</div><div class="stat-label"><img src="/icons/icon-in-progress.svg" class="status-icon">In Progress</div></div>
+  <div class="stat-card stat-next"><div class="stat-number" id="stat-next">0</div><div class="stat-label"><img src="/icons/icon-planned.svg" class="status-icon">Planned</div></div>
   <div class="stat-card stat-avg"><div class="stat-number" id="stat-avg">0%</div><div class="stat-label">Avg Complete</div></div>
 </div>
 
@@ -703,6 +713,7 @@
     </select>
   </div>
   <div class="view-toggle">
+    <button class="btn btn-add-project" onclick="openAddModal()">+ Add Project</button>
     <button class="view-btn active" id="btn-table" onclick="setView('table')">☰ Table</button>
     <button class="view-btn" id="btn-kanban" onclick="setView('kanban')">▦ Kanban</button>
   </div>
@@ -920,6 +931,11 @@ function statusLabel(s) {
   return s === 'done' ? 'Complete' : s === 'doing' ? 'In Progress' : 'Planned';
 }
 
+function statusIcon(s) {
+  const name = s === 'done' ? 'done' : s === 'doing' ? 'in-progress' : 'planned';
+  return `<img src="/icons/icon-${name}.svg" class="status-badge-icon">`;
+}
+
 function fillClass(s) {
   return s === 'done' ? 'fill-done' : s === 'doing' ? 'fill-doing' : 'fill-next';
 }
@@ -1064,7 +1080,7 @@ function renderTable(items) {
       <td><span class="tool-chip ${toolClass(p.tool)}">${esc(p.tool||'—')}</span></td>
       <td><span class="use-chip ${useClass(p.use)}">${esc(p.use||'—')}</span></td>
       <td>${p.champion ? `<span class="champion-chip">${esc(p.champion)}</span>` : '—'}</td>
-      <td><span class="status-badge status-${p.status}">${statusLabel(p.status)}</span></td>
+      <td><span class="status-badge status-${p.status}">${statusIcon(p.status)}${statusLabel(p.status)}</span></td>
       <td>
         <div class="progress-wrap">
           <div class="progress-bar-bg">
@@ -1127,7 +1143,7 @@ function renderKanban(items) {
 
     return `<div class="kanban-col">
       <div class="kanban-header">
-        <span class="kanban-dot ${dotCls}"></span>${title}
+        <img src="/icons/icon-${status === 'done' ? 'done' : status === 'doing' ? 'in-progress' : 'planned'}.svg" class="kanban-status-icon">${title}
         <span class="kanban-count">${groups[status].length}</span>
       </div>
       <div class="kanban-cards">${cards}</div>
