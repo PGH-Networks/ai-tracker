@@ -10,6 +10,8 @@ A web application for tracking AI implementation projects across your organizati
 
 AI Project Tracker provides a centralized dashboard for monitoring the status, progress, and roadmap of AI initiatives. It supports both a table view and a Kanban board, advanced filtering and search, and a three-horizon roadmap planner — all backed by a PostgreSQL database.
 
+The UI uses PGH Networks brand colors — navy (`#02264F`) to green (`#68F98F`) header gradient, PGH Networks logo, and a blue-tinted alternating row style — for a consistent company look and feel.
+
 ---
 
 ## Architecture
@@ -95,6 +97,7 @@ The app is deployed to Azure Container Apps via GitHub Actions. Every push to `m
 
 ### Project Table View
 - Sortable columns: Name, Type, Department, Tool, Use Case, Status, Completion
+- Alternating white / light blue row striping for readability
 - Expandable description rows
 - Inline status badges and progress bars
 - Edit and delete controls per row
