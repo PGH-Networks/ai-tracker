@@ -115,11 +115,11 @@ The app is deployed to Azure Container Apps via GitHub Actions. Every push to `m
 Three time-horizon buckets for future initiatives:
 | Bucket | Timeframe |
 |--------|-----------|
-| Soon | 0–3 months |
-| Mid-term | 3–9 months |
+| Coming Soon | 0–3 months |
+| Mid-Term | 3–9 months |
 | Future Vision | 9+ months |
 
-Add and remove roadmap items independently from tracked projects.
+Add and remove roadmap items independently from tracked projects. When an initiative is ready to become a project, hover the item and click **→ Project** to open the Add Project modal pre-filled with the item's title. On save, the roadmap item is automatically removed.
 
 ### Import / Export
 - **Export**: Downloads all projects and roadmap data as a timestamped `.json` file.

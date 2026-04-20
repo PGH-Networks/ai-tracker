@@ -457,6 +457,15 @@
     opacity: 0; transition: opacity 0.15s;
   }
   .roadmap-item:hover .remove-roadmap { opacity: 1; }
+  .roadmap-item .convert-project-btn {
+    border: 1px solid var(--border); background: white; cursor: pointer;
+    color: var(--primary); font-size: 0.72rem; padding: 2px 7px;
+    border-radius: 5px; white-space: nowrap; line-height: 1.6;
+    opacity: 0; transition: opacity 0.15s;
+    font-weight: 600;
+  }
+  .roadmap-item:hover .convert-project-btn { opacity: 1; }
+  .roadmap-item .convert-project-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
   .roadmap-soon { border-left-color: var(--primary); }
   .roadmap-mid { border-left-color: var(--warning); }
@@ -1144,6 +1153,7 @@ function renderRoadmap() {
     container.innerHTML = roadmap[bucket].map((item, i) =>
       `<div class="roadmap-item ${cls}">
         <span class="roadmap-item-text">${esc(item)}</span>
+        <button class="convert-project-btn" onclick="convertToProject('${bucket}',${i})" title="Convert to project">→ Project</button>
         <button class="remove-roadmap" onclick="removeRoadmapItem('${bucket}',${i})" title="Remove">✕</button>
       </div>`
     ).join('');
@@ -1199,6 +1209,16 @@ function openAddModal() {
   setTimeout(() => document.getElementById('f-name').focus(), 100);
 }
 
+function convertToProject(bucket, i) {
+  const title = roadmap[bucket][i];
+  openAddModal();
+  document.getElementById('modalTitle').textContent = 'Convert to Project';
+  document.getElementById('f-name').value = title;
+  // Store source so we can remove roadmap item after save
+  document.getElementById('projectModal').dataset.convertBucket = bucket;
+  document.getElementById('projectModal').dataset.convertIndex = i;
+}
+
 function openEditModal(id) {
   const p = projects.find(x => x.id === id);
   if (!p) return;
@@ -1220,7 +1240,10 @@ function openEditModal(id) {
 }
 
 function closeModal() {
-  document.getElementById('projectModal').classList.remove('open');
+  const modal = document.getElementById('projectModal');
+  modal.classList.remove('open');
+  delete modal.dataset.convertBucket;
+  delete modal.dataset.convertIndex;
 }
 
 async function saveProject() {
@@ -1260,6 +1283,17 @@ async function saveProject() {
   }
 
   await loadData();
+
+  // If converting from a roadmap item, remove it
+  const modal = document.getElementById('projectModal');
+  if (!id && modal.dataset.convertBucket) {
+    const bucket = modal.dataset.convertBucket;
+    const idx = parseInt(modal.dataset.convertIndex, 10);
+    roadmap[bucket].splice(idx, 1);
+    await saveRoadmapToServer();
+    renderRoadmap();
+  }
+
   closeModal();
   renderAll();
 }
