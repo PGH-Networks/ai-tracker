@@ -40,6 +40,17 @@ All data is fetched from the API on page load (`loadData()`). Filtering, sorting
 
 **roadmap_items** — `id SERIAL PK`, `bucket` (`soon`/`mid`/`later`), `text`, `sort_order`, `created_at`
 
+### Project Field Options
+
+| Field | Options |
+|-------|---------|
+| **Type** | Automation, Chatbot / Assistant, Analytics & Reporting, Document Processing, Content Generation, Data Analysis, Workflow Integration, Training & Enablement, Software Development, Other |
+| **Department** | Help Desk, Operations, Finance, Sales & Marketing |
+| **AI Tool** | Claude, Hatz, Co-Pilot, N8N, Other |
+| **Use Case** | Internal, Client-Facing, Both, External / Public |
+| **Status** | `done` (Complete), `doing` (In Progress), `next` (Planned) |
+| **Champion** | Bill, Chad, Chris, Derek, Dylan, Geno, Greg, Howard, Isaac, Jeremy, Jessica, Josh D, Josh W, Lauren, Mark, Matt Shaginaw, Sean, Tony |
+
 ### Frontend State
 
 ```js
