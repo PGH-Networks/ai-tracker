@@ -848,7 +848,7 @@
 <div class="tools-hub">
   <div class="tools-hub-header" onclick="toggleHub()">
     <span class="tools-hub-title">
-      🔗 Tools Hub
+      🔗 AI Site Links
       <span class="hub-count" id="hub-count">0</span>
     </span>
     <span class="tools-hub-chevron open" id="hub-chevron">▼</span>
@@ -1171,7 +1171,7 @@ function renderHub() {
 
   const cards = tools.map(t => `
     <a class="tool-card" href="${esc(t.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
-      <img class="tool-favicon" src="${getFavicon(t.url)}" alt="" onerror="this.style.display='none'">
+      <img class="tool-favicon" src="${getFavicon(t.url)}" alt="" onerror="this.src='/icons/icon-tool-default.svg'">
       <div class="tool-card-info">
         <div class="tool-card-label">${esc(t.label)}</div>
         <div class="tool-card-domain">${esc(getDomain(t.url))}</div>

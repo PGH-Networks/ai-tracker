@@ -96,16 +96,16 @@ CSS classes: `.status-icon` (32px, stat cards), `.status-badge-icon` (14px, tabl
 Three visually distinct bands at the top of the page:
 
 1. **Header** (`#02264F` solid navy) — Logo, title, Export JSON, Import buttons. Syne font title, `32px` vertical padding.
-2. **Tools Hub** (`#68F98F` PGH green) — Collapsible shared link dashboard. Navy text/cards on green background; cards flip to navy-on-white on hover. See [Tools Hub](#tools-hub) section below.
+2. **AI Site Links** (`#68F98F` PGH green) — Collapsible shared link dashboard. Navy text/cards on green background; cards flip to navy-on-white on hover. See [AI Site Links](#tools-hub) section below.
 3. **Stats bar** (white) — 5 cards in a single row, each with a colored left-border accent matching its status color.
 
 - **Controls bar** — Horizontal filter row (Search, Status, Department, AI Tool, Use) with labels stacked above inputs (`flex-direction: column`). `+ Add Project` (navy) and Table/Kanban toggle are right-aligned via `.view-toggle`.
 - **Empty state** — Includes a live `+ Add Project` button so users can act without scrolling back to the controls bar.
 - **Roadmap header** — Plain text heading (no emoji), Syne font.
 
-## Tools Hub
+## AI Site Links
 
-A shared, persistent link dashboard stored in PostgreSQL — every visitor sees the same tools in real time.
+A shared, persistent link dashboard stored in PostgreSQL — every visitor sees the same links in real time.
 
 ### API Endpoints
 
