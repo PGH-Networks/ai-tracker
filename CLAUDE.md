@@ -93,11 +93,41 @@ CSS classes: `.status-icon` (32px, stat cards), `.status-badge-icon` (14px, tabl
 
 ### UI Layout
 
-- **Header** — Logo, title, Export JSON, Import buttons. More vertical padding (`32px`) with Syne title and lighter subtitle.
-- **Stats bar** — 5 cards in a single row, each with a colored left-border accent matching its status color.
+Three visually distinct bands at the top of the page:
+
+1. **Header** (`#02264F` solid navy) — Logo, title, Export JSON, Import buttons. Syne font title, `32px` vertical padding.
+2. **Tools Hub** (`#68F98F` PGH green) — Collapsible shared link dashboard. Navy text/cards on green background; cards flip to navy-on-white on hover. See [Tools Hub](#tools-hub) section below.
+3. **Stats bar** (white) — 5 cards in a single row, each with a colored left-border accent matching its status color.
+
 - **Controls bar** — Horizontal filter row (Search, Status, Department, AI Tool, Use) with labels stacked above inputs (`flex-direction: column`). `+ Add Project` (navy) and Table/Kanban toggle are right-aligned via `.view-toggle`.
 - **Empty state** — Includes a live `+ Add Project` button so users can act without scrolling back to the controls bar.
 - **Roadmap header** — Plain text heading (no emoji), Syne font.
+
+## Tools Hub
+
+A shared, persistent link dashboard stored in PostgreSQL — every visitor sees the same tools in real time.
+
+### API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/tools` | All tool links |
+| POST | `/api/tools` | Create `{ label, url }` |
+| PUT | `/api/tools/:id` | Update label/URL |
+| DELETE | `/api/tools/:id` | Remove link |
+
+### Database Table
+
+**tool_links** — `id SERIAL PK`, `label TEXT`, `url TEXT`, `sort_order INT`, `created_at TIMESTAMPTZ`
+
+### Frontend
+
+- State: `let tools = []` — fetched in `loadData()` alongside projects and roadmap
+- `renderHub()` — builds card grid, auto-fetches favicons via `https://www.google.com/s2/favicons?domain=<origin>&sz=32`
+- `saveTool()` — POST or PUT with duplicate-submit guard (`saving` flag)
+- `deleteTool(id)` — DELETE with confirm prompt
+- `toggleHub()` — collapses/expands the hub body
+- URLs auto-prefixed with `https://` if scheme is missing
 
 ## Deployment
 

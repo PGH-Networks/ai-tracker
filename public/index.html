@@ -44,7 +44,7 @@
   }
 
   .app-header {
-    background: linear-gradient(135deg, #02264F 0%, #001F32 60%, #68F98F 100%);
+    background: #02264F;
     color: white;
     padding: 32px 32px;
     display: flex;
@@ -96,6 +96,165 @@
   }
 
   .btn-secondary:hover { background: rgba(255,255,255,0.3); }
+
+  /* TOOLS HUB */
+  .tools-hub {
+    background: #68F98F;
+    border-top: none;
+    border-bottom: 3px solid rgba(2,38,79,0.15);
+    padding: 0 32px;
+    box-shadow: 0 2px 12px rgba(104,249,143,0.3);
+  }
+
+  .tools-hub-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .tools-hub-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #02264F;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tools-hub-title .hub-count {
+    background: #02264F;
+    color: #68F98F;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0;
+  }
+
+  .tools-hub-chevron {
+    font-size: 0.7rem;
+    color: rgba(2,38,79,0.5);
+    transition: transform 0.2s;
+  }
+
+  .tools-hub-chevron.open { transform: rotate(180deg); }
+
+  .tools-hub-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-bottom: 16px;
+  }
+
+  .tools-hub-body.collapsed { display: none; }
+
+  .tool-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(2,38,79,0.08);
+    border: 1.5px solid rgba(2,38,79,0.2);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    color: #02264F;
+    position: relative;
+    min-width: 160px;
+    max-width: 240px;
+  }
+
+  .tool-card:hover {
+    background: #02264F;
+    border-color: #02264F;
+    box-shadow: 0 4px 16px rgba(2,38,79,0.25);
+    transform: translateY(-2px);
+  }
+
+  .tool-card:hover .tool-card-label,
+  .tool-card:hover .tool-card-domain { color: white; }
+
+  .tool-favicon {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    flex-shrink: 0;
+    object-fit: contain;
+  }
+
+  .tool-card-info { min-width: 0; flex: 1; }
+
+  .tool-card-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #02264F;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.15s;
+  }
+
+  .tool-card-domain {
+    font-size: 0.72rem;
+    color: rgba(2,38,79,0.55);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+    transition: color 0.15s;
+  }
+
+  .tool-card-actions {
+    display: none;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    gap: 2px;
+  }
+
+  .tool-card:hover .tool-card-actions { display: flex; }
+
+  .tool-action-btn {
+    border: none;
+    background: rgba(2,38,79,0.15);
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.7rem;
+    padding: 2px 5px;
+    color: #02264F;
+    line-height: 1.4;
+    transition: all 0.1s;
+  }
+
+  .tool-card:hover .tool-action-btn { background: rgba(255,255,255,0.2); color: white; }
+  .tool-action-btn:hover { background: white !important; color: #02264F !important; }
+  .tool-action-btn.del:hover { background: var(--danger) !important; color: white !important; }
+
+  .tool-add-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: none;
+    border: 1.5px dashed rgba(2,38,79,0.3);
+    border-radius: 10px;
+    cursor: pointer;
+    color: rgba(2,38,79,0.6);
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .tool-add-btn:hover { border-color: #02264F; color: #02264F; background: rgba(2,38,79,0.08); }
 
   /* STATS BAR */
   .stats-bar {
@@ -685,6 +844,20 @@
   </div>
 </div>
 
+<!-- TOOLS HUB -->
+<div class="tools-hub">
+  <div class="tools-hub-header" onclick="toggleHub()">
+    <span class="tools-hub-title">
+      🔗 Tools Hub
+      <span class="hub-count" id="hub-count">0</span>
+    </span>
+    <span class="tools-hub-chevron open" id="hub-chevron">▼</span>
+  </div>
+  <div class="tools-hub-body" id="hub-body">
+    <button class="tool-add-btn" onclick="event.stopPropagation(); openToolModal()">＋ Add Tool</button>
+  </div>
+</div>
+
 <!-- STATS BAR -->
 <div class="stats-bar">
   <div class="stat-card stat-total"><div class="stat-number" id="stat-total">0</div><div class="stat-label">Total Projects</div></div>
@@ -914,6 +1087,31 @@
   </div>
 </div>
 
+<!-- TOOL MODAL -->
+<div class="modal-overlay" id="toolModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <h2 id="toolModalTitle">Add Tool</h2>
+      <button class="modal-close" onclick="closeToolModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="tool-edit-id">
+      <div class="form-group">
+        <label>Label *</label>
+        <input type="text" id="tool-label" placeholder="e.g. Client Portal, Help Desk Bot">
+      </div>
+      <div class="form-group">
+        <label>URL *</label>
+        <input type="text" id="tool-url" placeholder="https://...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-cancel" onclick="closeToolModal()">Cancel</button>
+      <button class="btn btn-save" id="tool-save-btn" onclick="saveTool()">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- IMPORT INPUT -->
 <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
 
@@ -921,6 +1119,7 @@
 // ---- DATA STORE ----
 let projects = [];
 let roadmap = { soon: [], mid: [], later: [] };
+let tools = [];
 let currentView = 'table';
 let saving = false;
 let sortCol = 'name';
@@ -929,9 +1128,10 @@ let sortDir = 'asc';
 // ---- LOAD / SAVE ----
 async function loadData() {
   try {
-    const [pRes, rRes] = await Promise.all([
+    const [pRes, rRes, tRes] = await Promise.all([
       fetch('/api/projects'),
-      fetch('/api/roadmap')
+      fetch('/api/roadmap'),
+      fetch('/api/tools')
     ]);
     const pData = await pRes.json();
     projects = pData.map(p => ({
@@ -941,7 +1141,9 @@ async function loadData() {
       champion: p.champion, createdAt: p.created_at
     }));
     roadmap = await rRes.json();
-  } catch(e) { console.error('Load error:', e); projects = []; roadmap = { soon: [], mid: [], later: [] }; }
+    tools = await tRes.json();
+    renderHub();
+  } catch(e) { console.error('Load error:', e); projects = []; roadmap = { soon: [], mid: [], later: [] }; tools = []; }
 }
 
 async function saveRoadmapToServer() {
@@ -950,6 +1152,104 @@ async function saveRoadmapToServer() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(roadmap)
   });
+}
+
+// ---- TOOLS HUB ----
+function getDomain(url) {
+  try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
+}
+
+function getFavicon(url) {
+  try { const origin = new URL(url).origin; return `https://www.google.com/s2/favicons?domain=${origin}&sz=32`; }
+  catch { return ''; }
+}
+
+function renderHub() {
+  const body = document.getElementById('hub-body');
+  const count = document.getElementById('hub-count');
+  count.textContent = tools.length;
+
+  const cards = tools.map(t => `
+    <a class="tool-card" href="${esc(t.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+      <img class="tool-favicon" src="${getFavicon(t.url)}" alt="" onerror="this.style.display='none'">
+      <div class="tool-card-info">
+        <div class="tool-card-label">${esc(t.label)}</div>
+        <div class="tool-card-domain">${esc(getDomain(t.url))}</div>
+      </div>
+      <div class="tool-card-actions">
+        <button class="tool-action-btn" onclick="event.preventDefault(); event.stopPropagation(); openToolModal(${t.id})" title="Edit">✏</button>
+        <button class="tool-action-btn del" onclick="event.preventDefault(); event.stopPropagation(); deleteTool(${t.id})" title="Delete">✕</button>
+      </div>
+    </a>
+  `).join('');
+
+  body.innerHTML = cards + `<button class="tool-add-btn" onclick="event.stopPropagation(); openToolModal()">＋ Add Tool</button>`;
+}
+
+function toggleHub() {
+  const body = document.getElementById('hub-body');
+  const chevron = document.getElementById('hub-chevron');
+  body.classList.toggle('collapsed');
+  chevron.classList.toggle('open');
+}
+
+function openToolModal(id) {
+  const tool = id ? tools.find(t => t.id === id) : null;
+  document.getElementById('toolModalTitle').textContent = tool ? 'Edit Tool' : 'Add Tool';
+  document.getElementById('tool-edit-id').value = tool ? tool.id : '';
+  document.getElementById('tool-label').value = tool ? tool.label : '';
+  document.getElementById('tool-url').value = tool ? tool.url : '';
+  document.getElementById('tool-save-btn').textContent = 'Save';
+  document.getElementById('toolModal').classList.add('open');
+  setTimeout(() => document.getElementById('tool-label').focus(), 100);
+}
+
+function closeToolModal() {
+  document.getElementById('toolModal').classList.remove('open');
+}
+
+async function saveTool() {
+  if (saving) return;
+  const label = document.getElementById('tool-label').value.trim();
+  let url = document.getElementById('tool-url').value.trim();
+  if (!label) { alert('Label is required.'); return; }
+  if (!url) { alert('URL is required.'); return; }
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+  saving = true;
+  const btn = document.getElementById('tool-save-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  try {
+    const id = document.getElementById('tool-edit-id').value;
+    if (id) {
+      await fetch('/api/tools/' + id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label, url })
+      });
+    } else {
+      await fetch('/api/tools', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label, url })
+      });
+    }
+    const res = await fetch('/api/tools');
+    tools = await res.json();
+    renderHub();
+    closeToolModal();
+  } finally {
+    saving = false;
+    btn.disabled = false; btn.textContent = 'Save';
+  }
+}
+
+async function deleteTool(id) {
+  if (!confirm('Remove this tool from the hub?')) return;
+  await fetch('/api/tools/' + id, { method: 'DELETE' });
+  tools = tools.filter(t => t.id !== id);
+  renderHub();
 }
 
 // ---- HELPERS ----
@@ -1433,9 +1733,17 @@ document.getElementById('roadmapModal').addEventListener('click', function(e) {
   if (e.target === this) closeRoadmapModal();
 });
 
+document.getElementById('toolModal').addEventListener('click', function(e) {
+  if (e.target === this) closeToolModal();
+});
+
+document.getElementById('tool-url').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') saveTool();
+});
+
 // ---- KEYBOARD ----
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') { closeModal(); closeRoadmapModal(); }
+  if (e.key === 'Escape') { closeModal(); closeRoadmapModal(); closeToolModal(); }
 });
 
 // ---- INIT ----

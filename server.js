@@ -35,6 +35,13 @@ async function initDb() {
       title TEXT NOT NULL,
       sort_order INTEGER DEFAULT 0
     );
+    CREATE TABLE IF NOT EXISTS tool_links (
+      id SERIAL PRIMARY KEY,
+      label TEXT NOT NULL,
+      url TEXT NOT NULL,
+      sort_order INTEGER DEFAULT 0,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
   `);
   console.log('Database tables initialized');
 }
@@ -103,6 +110,38 @@ app.put('/api/roadmap', async (req, res) => {
     client.release();
   }
   res.json({ soon, mid, later });
+});
+
+// --- Tools Hub API ---
+app.get('/api/tools', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM tool_links ORDER BY sort_order, created_at');
+  res.json(rows);
+});
+
+app.post('/api/tools', async (req, res) => {
+  const { label, url } = req.body;
+  const { rows: countRows } = await pool.query('SELECT COUNT(*) FROM tool_links');
+  const sort_order = parseInt(countRows[0].count, 10);
+  const { rows } = await pool.query(
+    'INSERT INTO tool_links (label, url, sort_order) VALUES ($1, $2, $3) RETURNING *',
+    [label, url, sort_order]
+  );
+  res.status(201).json(rows[0]);
+});
+
+app.put('/api/tools/:id', async (req, res) => {
+  const { label, url } = req.body;
+  const { rows } = await pool.query(
+    'UPDATE tool_links SET label=$1, url=$2 WHERE id=$3 RETURNING *',
+    [label, url, req.params.id]
+  );
+  if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+  res.json(rows[0]);
+});
+
+app.delete('/api/tools/:id', async (req, res) => {
+  await pool.query('DELETE FROM tool_links WHERE id=$1', [req.params.id]);
+  res.status(204).end();
 });
 
 // --- Serve frontend ---
