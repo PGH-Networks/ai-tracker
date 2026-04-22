@@ -66,7 +66,7 @@ Key functions: `renderAll()` → `renderTable()` / `renderKanban()` / `renderRoa
 
 PGH Networks brand colors: navy `#02264F`, green `#68F98F`. The header uses a diagonal gradient between these. All interactive accents (focus rings, active buttons, sort indicators, form saves) use `--primary: #02264F` — there is no purple in the design.
 
-**Typography:** [Syne](https://fonts.google.com/specimen/Syne) (600–800 weight) for headings and stat numbers; [DM Sans](https://fonts.google.com/specimen/DM+Sans) for body text. Loaded via Google Fonts in `<head>`. Applied via `h1, h2, h3, .stat-number { font-family: 'Syne', sans-serif; }`.
+**Typography:** [Syne](https://fonts.google.com/specimen/Syne) (600–800 weight) for headings (`h1, h2, h3`); [DM Sans](https://fonts.google.com/specimen/DM+Sans) for body text and stat numbers. Loaded via Google Fonts in `<head>`. Stat numbers use DM Sans specifically to avoid the flattened numeral appearance of Syne.
 
 ### CSS Variables
 

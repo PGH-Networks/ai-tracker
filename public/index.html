@@ -35,8 +35,12 @@
   }
 
   /* HEADER */
-  h1, h2, h3, .stat-number {
+  h1, h2, h3 {
     font-family: 'Syne', sans-serif;
+  }
+
+  .stat-number {
+    font-family: 'DM Sans', sans-serif;
   }
 
   .app-header {
@@ -918,6 +922,7 @@
 let projects = [];
 let roadmap = { soon: [], mid: [], later: [] };
 let currentView = 'table';
+let saving = false;
 let sortCol = 'name';
 let sortDir = 'asc';
 
@@ -1214,13 +1219,22 @@ function closeRoadmapModal() {
 }
 
 async function saveRoadmapItem() {
+  if (saving) return;
   const bucket = document.getElementById('roadmap-bucket').value;
   const text = document.getElementById('roadmap-text').value.trim();
   if (!text) { alert('Please enter an item.'); return; }
-  roadmap[bucket].push(text);
-  await saveRoadmapToServer();
-  closeRoadmapModal();
-  renderRoadmap();
+  saving = true;
+  const btn = document.querySelector('#roadmapModal .btn-save');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  try {
+    roadmap[bucket].push(text);
+    await saveRoadmapToServer();
+    closeRoadmapModal();
+    renderRoadmap();
+  } finally {
+    saving = false;
+    if (btn) { btn.disabled = false; btn.textContent = 'Add'; }
+  }
 }
 
 async function removeRoadmapItem(bucket, idx) {
@@ -1287,11 +1301,15 @@ function closeModal() {
 }
 
 async function saveProject() {
+  if (saving) return;
   const name = document.getElementById('f-name').value.trim();
   const type = document.getElementById('f-type').value.trim();
   const dept = document.getElementById('f-dept').value.trim();
   if (!name) { alert('Project name is required.'); return; }
   if (!type) { alert('Project type is required.'); return; }
+  saving = true;
+  const btn = document.querySelector('#projectModal .btn-save');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
 
   const apiData = {
     name,
@@ -1307,35 +1325,40 @@ async function saveProject() {
   };
 
   const id = document.getElementById('editId').value;
-  if (id) {
-    await fetch('/api/projects/' + id, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(apiData)
-    });
-  } else {
-    apiData.id = uid();
-    await fetch('/api/projects', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(apiData)
-    });
+  try {
+    if (id) {
+      await fetch('/api/projects/' + id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(apiData)
+      });
+    } else {
+      apiData.id = uid();
+      await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(apiData)
+      });
+    }
+
+    await loadData();
+
+    // If converting from a roadmap item, remove it
+    const modal = document.getElementById('projectModal');
+    if (!id && modal.dataset.convertBucket) {
+      const bucket = modal.dataset.convertBucket;
+      const idx = parseInt(modal.dataset.convertIndex, 10);
+      roadmap[bucket].splice(idx, 1);
+      await saveRoadmapToServer();
+      renderRoadmap();
+    }
+
+    closeModal();
+    renderAll();
+  } finally {
+    saving = false;
+    if (btn) { btn.disabled = false; btn.textContent = 'Save Project'; }
   }
-
-  await loadData();
-
-  // If converting from a roadmap item, remove it
-  const modal = document.getElementById('projectModal');
-  if (!id && modal.dataset.convertBucket) {
-    const bucket = modal.dataset.convertBucket;
-    const idx = parseInt(modal.dataset.convertIndex, 10);
-    roadmap[bucket].splice(idx, 1);
-    await saveRoadmapToServer();
-    renderRoadmap();
-  }
-
-  closeModal();
-  renderAll();
 }
 
 async function deleteProject() {
