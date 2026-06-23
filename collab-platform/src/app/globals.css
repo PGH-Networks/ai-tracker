@@ -1,0 +1,157 @@
+:root {
+  --primary: #02264f;
+  --primary-dark: #175184;
+  --green: #68f98f;
+  --next-color: #f59e0b;
+  --bg: #f6f8fb;
+  --card: #ffffff;
+  --border: #e3e8ef;
+  --text: #0f172a;
+  --muted: #64748b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-syne), system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--primary-dark);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+.app-header {
+  background: var(--primary);
+  color: #fff;
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.app-header h1 {
+  font-size: 20px;
+  margin: 0;
+  color: #fff;
+}
+.app-header .role-pill {
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--green);
+  color: var(--primary);
+  border-radius: 999px;
+  padding: 4px 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.card h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.status {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.status.PROSPECT {
+  background: #fff5e6;
+  color: var(--next-color);
+}
+.status.ACTIVE {
+  background: #e7fbee;
+  color: #047a3d;
+}
+.status.ARCHIVED {
+  background: #eef1f5;
+  color: var(--muted);
+}
+
+.btn {
+  display: inline-block;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn:hover {
+  background: var(--primary-dark);
+  text-decoration: none;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.signin-wrap {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+}
+.signin-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 36px;
+  width: 360px;
+  max-width: 90vw;
+}
+.signin-card input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  margin: 8px 0 14px;
+}
+.divider {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  margin: 18px 0;
+}
