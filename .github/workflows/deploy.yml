@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    # The collab-platform app has its own pipeline (deploy-collab.yml);
+    # don't redeploy AI Tracker for changes scoped to it.
+    paths-ignore:
+      - "collab-platform/**"
+      - ".github/workflows/deploy-collab.yml"
 
 env:
   ACR_NAME: aitrackeracr

@@ -52,10 +52,41 @@ schema/UI/search change is needed to add the adapter later.
 ## Phases
 
 1. **Foundation (done):** auth, schema, RBAC, clients/projects, role views.
-2. Knowledge & capture: notes, MeetingRecord manual entry, quick links.
+2. **Knowledge & capture (done):** notes (rich text + visibility gate), Fireflies
+   `MeetingRecord` manual entry + searchable archive, quick links. Ingestion
+   adapter interface in `src/lib/ingestion/` (manual now, Fireflies API stubbed).
 3. Planning & financials: roadmap, budget, internal calculator, client proposal.
 4. Real-time whiteboard (Yjs self-host vs Liveblocks — TBD).
 5. Fireflies API ingestion adapter.
+
+## Deployment (independent of AI Tracker)
+
+This app has its own pipeline (`.github/workflows/deploy-collab.yml`), triggered
+only by changes under `collab-platform/**`. It builds the `collab` image in the
+shared ACR and deploys to its own Container App with its own database.
+
+**One-time Azure setup:**
+
+```bash
+# Database (its own Flexible Server)
+az postgres flexible-server create -g rg-aitracker -n pgh-collab-db \
+  --location eastus --admin-user pghadmin --admin-password '<PW>' \
+  --tier Burstable --sku-name Standard_B1ms --storage-size 32 --version 16 \
+  --public-access 0.0.0.0
+az postgres flexible-server db create -g rg-aitracker -s pgh-collab-db -d pgh_collab
+
+# Container App (its own app, ingress on 3000)
+az containerapp create -g rg-aitracker -n collab-app \
+  --environment <your-container-app-env> \
+  --image mcr.microsoft.com/k8se/quickstart:latest \
+  --target-port 3000 --ingress external \
+  --registry-server aitrackeracr.azurecr.io
+```
+
+**Required GitHub secrets:** `AZURE_CREDENTIALS` (existing), `COLLAB_DATABASE_URL`,
+`COLLAB_AUTH_SECRET`. The workflow injects `DATABASE_URL`/`AUTH_SECRET` as Container
+App secrets and runs `prisma migrate deploy` on container start. `AUTH_DISABLED=true`
+is set until we re-enable auth.
 
 ## Flagged third-party / paid
 

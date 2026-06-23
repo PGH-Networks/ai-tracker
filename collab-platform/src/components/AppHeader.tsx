@@ -14,6 +14,9 @@ export function AppHeader({ user }: { user: SessionUser }) {
           <Link href="/clients" style={{ color: "#cfe0f5" }}>
             Clients
           </Link>
+          <Link href="/meetings" style={{ color: "#cfe0f5" }}>
+            Meetings
+          </Link>
         </nav>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
