@@ -62,21 +62,40 @@ schema/UI/search change is needed to add the adapter later.
 4. Real-time whiteboard (Yjs self-host vs Liveblocks — TBD).
 5. Fireflies API ingestion adapter.
 
-## Deployment (independent of AI Tracker)
+## Deployment — LIVE (independent of AI Tracker)
 
-This app has its own pipeline (`.github/workflows/deploy-collab.yml`), triggered
-only by changes under `collab-platform/**`. It builds the `collab` image in the
-shared ACR and deploys to its own Container App with its own database.
+Provisioned in the **AI Playground** subscription (`eastus2`), fully separate
+from AI Tracker:
 
-**One-time Azure setup:** run [`scripts/provision-azure.sh`](scripts/provision-azure.sh)
-in [Azure Cloud Shell](https://shell.azure.com). It creates the Postgres Flexible
-Server + database, the `collab-app` Container App (ingress on 3000), wires ACR pull
-via managed identity, and sets `DATABASE_URL` / `AUTH_SECRET` as Container App
-secrets (generated in-shell — they never touch GitHub). Idempotent; safe to re-run.
+| Resource | Name |
+|---|---|
+| Resource group | `rg-collab-platform` |
+| Container registry | `pghcollabacr` (image `collab`) |
+| Postgres Flexible Server | `pgh-collab-db` / db `pgh_collab` |
+| Container Apps env | `collab-env` |
+| Container App | `collab-app` (ingress 3000) |
 
-**Only GitHub secret needed:** `AZURE_CREDENTIALS` (already present for AI Tracker).
-The Container App secrets persist across deploys, and the container runs
-`prisma migrate deploy` on start. `AUTH_DISABLED=true` is set until auth is re-enabled.
+`DATABASE_URL` and `AUTH_SECRET` are stored as Container App **secrets** (not in
+GitHub). The container runs `prisma migrate deploy` on start. `AUTH_DISABLED=true`
+is set until auth is re-enabled — **the app is currently open on the public
+internet with no login**.
+
+### Redeploy after changes
+
+```bash
+./scripts/redeploy.sh   # builds in ACR + rolls a new revision (uses your az login)
+```
+
+### CI auto-deploy (not yet enabled)
+
+`.github/workflows/deploy-collab.yml` is **manual-only** (`workflow_dispatch`).
+Auto-deploy on push needs an Azure admin to create a service principal with
+Contributor on `rg-collab-platform` + AcrPull on `pghcollabacr`, stored as the
+GitHub secret `COLLAB_AZURE_CREDENTIALS` (the existing `AZURE_CREDENTIALS` is
+scoped to a different subscription). Until then, use `redeploy.sh`.
+
+> `scripts/provision-azure.sh` documents a from-scratch rebuild; the live env
+> above was provisioned with these same steps.
 
 ## Flagged third-party / paid
 

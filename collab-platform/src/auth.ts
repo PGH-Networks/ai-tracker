@@ -5,6 +5,7 @@ import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 import Nodemailer from "next-auth/providers/nodemailer";
 import type { Role } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { authConfig } from "@/auth.config";
 
 /**
  * Auth.js v5 — database sessions.
@@ -36,12 +37,13 @@ if (process.env.EMAIL_SERVER) {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   // Cast bridges a duplicate nested @auth/core copy under @auth/prisma-adapter.
   adapter: PrismaAdapter(prisma) as Adapter,
   session: { strategy: "database" },
-  pages: { signIn: "/signin" },
   providers,
   callbacks: {
+    ...authConfig.callbacks,
     // Expose id + role to the session consumed by server components / API.
     session({ session, user }) {
       if (session.user) {
@@ -49,17 +51,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.role = (user as { role: Role }).role;
       }
       return session;
-    },
-    // Coarse gate: only signed-in users reach the app shell.
-    // Fine-grained RBAC (client scoping, cost data) lives in @/lib/rbac.
-    authorized({ auth: session, request }) {
-      const { pathname } = request.nextUrl;
-      const isPublic =
-        pathname === "/signin" ||
-        pathname.startsWith("/api/auth") ||
-        pathname.startsWith("/p/"); // public shareable proposal links
-      if (isPublic) return true;
-      return !!session?.user;
     },
   },
 });

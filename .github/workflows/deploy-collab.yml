@@ -1,25 +1,23 @@
 name: Build and Deploy Collab Platform
 
-# Independent pipeline for the collab-platform app. Only runs when its own
-# files change, so it never deploys alongside AI Tracker.
+# Independent pipeline for the collab-platform app (separate RG, ACR, DB, and
+# Container App from AI Tracker).
+#
+# ⚠️ Currently MANUAL-ONLY (workflow_dispatch). The existing AZURE_CREDENTIALS
+# service principal is scoped to AI Tracker's subscription and cannot reach
+# rg-collab-platform in the "AI Playground" subscription. To enable auto-deploy
+# on push, an Azure admin must create a service principal with Contributor on
+# rg-collab-platform and AcrPull on pghcollabacr, then store it as the GitHub
+# secret COLLAB_AZURE_CREDENTIALS and switch the `creds:` below + add a push
+# trigger. Until then, deploy with: collab-platform/scripts/redeploy.sh
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "collab-platform/**"
-      - ".github/workflows/deploy-collab.yml"
   workflow_dispatch:
 
 env:
-  ACR_NAME: aitrackeracr # shared registry, separate image
+  ACR_NAME: pghcollabacr
   IMAGE_NAME: collab
-  RESOURCE_GROUP: rg-aitracker
+  RESOURCE_GROUP: rg-collab-platform
   CONTAINER_APP: collab-app
-
-# Only secret needed: AZURE_CREDENTIALS (existing service principal JSON).
-# DATABASE_URL / AUTH_SECRET are set once on the Container App by
-# collab-platform/scripts/provision-azure.sh and persist across deploys.
 
 jobs:
   build_and_deploy:
@@ -31,14 +29,13 @@ jobs:
       - name: Log in to Azure
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ secrets.COLLAB_AZURE_CREDENTIALS }}
 
       - name: Build and push image
         run: |
           az acr build \
             --registry ${{ env.ACR_NAME }} \
             --image ${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            --image ${{ env.IMAGE_NAME }}:latest \
             --file collab-platform/Dockerfile \
             collab-platform
 

@@ -1,8 +1,11 @@
+import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { authConfig } from "@/auth.config";
 
-// Coarse auth gate at the edge. When AUTH_DISABLED=true there is no gate —
-// every request passes through (security deferred during build-out).
+// Edge-safe NextAuth instance (no Prisma adapter / Nodemailer — those use Node
+// APIs the Edge runtime forbids). When AUTH_DISABLED=true there is no gate.
+const { auth } = NextAuth(authConfig);
+
 export const middleware =
   process.env.AUTH_DISABLED === "true"
     ? () => NextResponse.next()
