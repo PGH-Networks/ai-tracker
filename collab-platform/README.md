@@ -55,7 +55,10 @@ schema/UI/search change is needed to add the adapter later.
 2. **Knowledge & capture (done):** notes (rich text + visibility gate), Fireflies
    `MeetingRecord` manual entry + searchable archive, quick links. Ingestion
    adapter interface in `src/lib/ingestion/` (manual now, Fireflies API stubbed).
-3. Planning & financials: roadmap, budget, internal calculator, client proposal.
+3. **Planning & financials (done):** roadmap with Gantt-style timeline + budgets
+   (internal-only lines hidden from clients), internal cost/effort calculator
+   (cost + margin, staff-only), and client-facing proposals generated from an
+   estimate — sell-side only, shareable at `/p/<token>`.
 4. Real-time whiteboard (Yjs self-host vs Liveblocks — TBD).
 5. Fireflies API ingestion adapter.
 

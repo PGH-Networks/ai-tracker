@@ -6,14 +6,20 @@ import { listProjectTree } from "@/lib/data/projects";
 import { listNotes } from "@/lib/data/notes";
 import { listMeetings } from "@/lib/data/meetings";
 import { listQuickLinks } from "@/lib/data/quicklinks";
+import { listRoadmap } from "@/lib/data/roadmap";
+import { listProposals } from "@/lib/data/proposals";
 import { AppHeader } from "@/components/AppHeader";
 import { RichTextEditor } from "@/components/RichTextEditor";
+import { money } from "@/lib/format";
 import {
   createProjectAction,
   createNoteAction,
   createMeetingAction,
   createQuickLinkAction,
   deleteQuickLinkAction,
+  createRoadmapItemAction,
+  createBudgetItemAction,
+  setProposalStatusAction,
 } from "@/app/actions";
 
 export const dynamic = "force-dynamic";
@@ -33,13 +39,26 @@ export default async function ClientDetail({
   if (!client) notFound();
 
   const staff = isStaff(user);
-  const [tree, notes, meetings, links] = await Promise.all([
+  const [tree, notes, meetings, links, roadmap, proposals] = await Promise.all([
     listProjectTree(user, id),
     listNotes(user, id),
     listMeetings(user, { clientId: id }),
     listQuickLinks(user, id),
+    listRoadmap(user, id),
+    listProposals(user, id),
   ]);
   const allProjects = tree.flatMap((g) => [g, ...g.children]);
+
+  // Simple Gantt scale across dated roadmap items.
+  const dated = roadmap.filter((r) => r.startDate && r.endDate);
+  const tMin = dated.length
+    ? Math.min(...dated.map((r) => new Date(r.startDate!).getTime()))
+    : 0;
+  const tMax = dated.length
+    ? Math.max(...dated.map((r) => new Date(r.endDate!).getTime()))
+    : 0;
+  const span = tMax - tMin || 1;
+  const pct = (t: number) => `${((t - tMin) / span) * 100}%`;
 
   return (
     <>
@@ -64,6 +83,14 @@ export default async function ClientDetail({
           {client.contactName ? ` · ${client.contactName}` : ""}
           {client.contactEmail ? ` · ${client.contactEmail}` : ""}
         </p>
+
+        {staff && (
+          <div style={{ marginTop: 10 }}>
+            <Link className="btn btn-sm" href={`/clients/${id}/calculator`}>
+              Open project calculator →
+            </Link>
+          </div>
+        )}
 
         {/* ---------------- Projects (nested) ---------------- */}
         <section className="section">
@@ -143,6 +170,170 @@ export default async function ClientDetail({
                 )}
               </div>
             ))
+          )}
+        </section>
+
+        {/* ---------------- Roadmap (timeline + budgets) ---------------- */}
+        <section className="section">
+          <div className="section-head">
+            <h3>Roadmap</h3>
+          </div>
+
+          {staff && (
+            <details className="adder">
+              <summary>+ Add a roadmap item</summary>
+              <form action={createRoadmapItemAction} className="pad">
+                <input type="hidden" name="clientId" value={id} />
+                <div className="form-grid">
+                  <div className="full">
+                    <label htmlFor="rtitle">Title *</label>
+                    <input id="rtitle" name="title" required />
+                  </div>
+                  <div>
+                    <label htmlFor="rstatus">Status</label>
+                    <select id="rstatus" name="status" defaultValue="PLANNED">
+                      <option value="PLANNED">Planned</option>
+                      <option value="IN_PROGRESS">In progress</option>
+                      <option value="DONE">Done</option>
+                      <option value="AT_RISK">At risk</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="rproject">Project</label>
+                    <select id="rproject" name="projectId" defaultValue="">
+                      <option value="">— none —</option>
+                      {allProjects.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="rstart">Start</label>
+                    <input id="rstart" name="startDate" type="date" />
+                  </div>
+                  <div>
+                    <label htmlFor="rend">End</label>
+                    <input id="rend" name="endDate" type="date" />
+                  </div>
+                </div>
+                <button className="btn btn-sm" type="submit" style={{ marginTop: 10 }}>
+                  Add
+                </button>
+              </form>
+            </details>
+          )}
+
+          {roadmap.length === 0 ? (
+            <p className="muted">No roadmap items yet.</p>
+          ) : (
+            roadmap.map((r) => {
+              const budgetTotal = r.budgetItems.reduce(
+                (s, b) => s + Number(b.amount),
+                0
+              );
+              return (
+                <div key={r.id} className="list-row" style={{ flexDirection: "column" }}>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center", width: "100%" }}>
+                    <strong>{r.title}</strong>
+                    <span className="muted" style={{ fontSize: 12 }}>
+                      {r.status}
+                    </span>
+                    {r.project && (
+                      <span className="pill">{r.project.name}</span>
+                    )}
+                    <span className="muted" style={{ fontSize: 12, marginLeft: "auto" }}>
+                      {fmtDate(r.startDate)} → {fmtDate(r.endDate)}
+                    </span>
+                  </div>
+
+                  {/* Gantt bar */}
+                  {r.startDate && r.endDate && (
+                    <div
+                      style={{
+                        position: "relative",
+                        height: 10,
+                        background: "#eef1f5",
+                        borderRadius: 6,
+                        margin: "8px 0",
+                        width: "100%",
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: "absolute",
+                          left: pct(new Date(r.startDate).getTime()),
+                          width: `calc(${pct(new Date(r.endDate).getTime())} - ${pct(new Date(r.startDate).getTime())})`,
+                          minWidth: 4,
+                          top: 0,
+                          bottom: 0,
+                          background: "var(--primary)",
+                          borderRadius: 6,
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Budget lines (internal-only already stripped for clients) */}
+                  {r.budgetItems.length > 0 && (
+                    <div style={{ fontSize: 13, width: "100%" }}>
+                      {r.budgetItems.map((b) => (
+                        <div
+                          key={b.id}
+                          style={{ display: "flex", justifyContent: "space-between" }}
+                        >
+                          <span>
+                            {b.label}
+                            {staff && b.internalOnly && (
+                              <span className="pill INTERNAL" style={{ marginLeft: 6 }}>
+                                internal
+                              </span>
+                            )}
+                          </span>
+                          <span>{money(b.amount)}</span>
+                        </div>
+                      ))}
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          fontWeight: 700,
+                          borderTop: "1px solid var(--border)",
+                          marginTop: 4,
+                          paddingTop: 4,
+                        }}
+                      >
+                        <span>Budget</span>
+                        <span>{money(budgetTotal)}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {staff && (
+                    <form action={createBudgetItemAction} className="toolbar" style={{ marginTop: 6 }}>
+                      <input type="hidden" name="clientId" value={id} />
+                      <input type="hidden" name="roadmapItemId" value={r.id} />
+                      <div>
+                        <label>Budget line</label>
+                        <input name="label" placeholder="e.g. Implementation" required />
+                      </div>
+                      <div style={{ maxWidth: 120 }}>
+                        <label>Amount</label>
+                        <input name="amount" type="number" step="0.01" min="0" required />
+                      </div>
+                      <label style={{ display: "flex", alignItems: "center", gap: 6, margin: 0 }}>
+                        <input type="checkbox" name="internalOnly" style={{ width: "auto" }} />
+                        internal only
+                      </label>
+                      <button className="btn btn-sm" type="submit">
+                        Add
+                      </button>
+                    </form>
+                  )}
+                </div>
+              );
+            })
           )}
         </section>
 
@@ -358,6 +549,66 @@ export default async function ClientDetail({
             </div>
           )}
         </section>
+        {/* ---------------- Proposals ---------------- */}
+        <section className="section">
+          <div className="section-head">
+            <h3>Proposals</h3>
+            {staff && (
+              <Link href={`/clients/${id}/calculator`} style={{ fontSize: 13 }}>
+                Generate from calculator →
+              </Link>
+            )}
+          </div>
+
+          {proposals.length === 0 ? (
+            <p className="muted">
+              {staff
+                ? "No proposals yet — build an estimate in the calculator, then generate one."
+                : "No proposals shared with you yet."}
+            </p>
+          ) : (
+            proposals.map((p) => (
+              <div key={p.id} className="list-row">
+                <div>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <strong>{p.title}</strong>
+                    <span className="pill">{p.status}</span>
+                  </div>
+                  <p className="muted" style={{ fontSize: 12, margin: "4px 0 0" }}>
+                    {p.project.name} · {money(p.totalPrice)}
+                  </p>
+                </div>
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  {p.publicToken && (
+                    <a href={`/p/${p.publicToken}`} target="_blank" rel="noreferrer">
+                      View →
+                    </a>
+                  )}
+                  {staff && (
+                    <form action={setProposalStatusAction}>
+                      <input type="hidden" name="clientId" value={id} />
+                      <input type="hidden" name="id" value={p.id} />
+                      <select
+                        name="status"
+                        defaultValue={p.status}
+                        style={{ width: "auto", padding: "4px 8px", fontSize: 13 }}
+                      >
+                        <option value="DRAFT">Draft</option>
+                        <option value="SENT">Sent</option>
+                        <option value="APPROVED">Approved</option>
+                        <option value="DECLINED">Declined</option>
+                      </select>
+                      <button className="btn btn-sm" type="submit" style={{ marginLeft: 6 }}>
+                        Update
+                      </button>
+                    </form>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </section>
+
       </main>
     </>
   );

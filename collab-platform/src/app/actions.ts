@@ -2,13 +2,22 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { Visibility, ProjectKind, RecordProvider } from "@prisma/client";
+import {
+  Visibility,
+  ProjectKind,
+  RecordProvider,
+  RoadmapStatus,
+  ProposalStatus,
+} from "@prisma/client";
 import { requireUser } from "@/lib/rbac";
 import { createClient } from "@/lib/data/clients";
 import { createProject } from "@/lib/data/projects";
 import { createNote } from "@/lib/data/notes";
 import { createManualMeeting } from "@/lib/data/meetings";
 import { createQuickLink, deleteQuickLink } from "@/lib/data/quicklinks";
+import { createRoadmapItem, createBudgetItem } from "@/lib/data/roadmap";
+import { createEstimate, addLineItem } from "@/lib/data/estimates";
+import { createProposalFromEstimate, setProposalStatus } from "@/lib/data/proposals";
 
 const str = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 const opt = (f: FormData, k: string) => {
@@ -91,5 +100,80 @@ export async function deleteQuickLinkAction(formData: FormData) {
   const user = await requireUser();
   const clientId = str(formData, "clientId");
   await deleteQuickLink(user, str(formData, "id"));
+  revalidatePath(`/clients/${clientId}`);
+}
+
+// ---------------- Phase 3: planning & financials ----------------
+
+export async function createRoadmapItemAction(formData: FormData) {
+  const user = await requireUser();
+  const clientId = str(formData, "clientId");
+  await createRoadmapItem(user, {
+    clientId,
+    projectId: opt(formData, "projectId"),
+    title: str(formData, "title"),
+    description: opt(formData, "description"),
+    status: (opt(formData, "status") as RoadmapStatus) ?? RoadmapStatus.PLANNED,
+    startDate: opt(formData, "startDate"),
+    endDate: opt(formData, "endDate"),
+  });
+  revalidatePath(`/clients/${clientId}`);
+}
+
+export async function createBudgetItemAction(formData: FormData) {
+  const user = await requireUser();
+  const clientId = str(formData, "clientId");
+  await createBudgetItem(user, {
+    roadmapItemId: str(formData, "roadmapItemId"),
+    label: str(formData, "label"),
+    amount: Number(str(formData, "amount") || 0),
+    internalOnly: formData.get("internalOnly") === "on",
+  });
+  revalidatePath(`/clients/${clientId}`);
+}
+
+export async function createEstimateAction(formData: FormData) {
+  const user = await requireUser();
+  const clientId = str(formData, "clientId");
+  await createEstimate(user, {
+    projectId: str(formData, "projectId"),
+    name: str(formData, "name") || "Estimate",
+  });
+  revalidatePath(`/clients/${clientId}/calculator`);
+}
+
+export async function addLineItemAction(formData: FormData) {
+  const user = await requireUser();
+  const clientId = str(formData, "clientId");
+  await addLineItem(user, {
+    estimateId: str(formData, "estimateId"),
+    role: str(formData, "role"),
+    description: opt(formData, "description"),
+    hours: Number(str(formData, "hours") || 0),
+    costRate: Number(str(formData, "costRate") || 0),
+    sellRate: Number(str(formData, "sellRate") || 0),
+  });
+  revalidatePath(`/clients/${clientId}/calculator`);
+}
+
+export async function createProposalAction(formData: FormData) {
+  const user = await requireUser();
+  const clientId = str(formData, "clientId");
+  await createProposalFromEstimate(user, {
+    estimateId: str(formData, "estimateId"),
+    title: str(formData, "title") || "Proposal",
+  });
+  revalidatePath(`/clients/${clientId}/calculator`);
+  revalidatePath(`/clients/${clientId}`);
+}
+
+export async function setProposalStatusAction(formData: FormData) {
+  const user = await requireUser();
+  const clientId = str(formData, "clientId");
+  await setProposalStatus(
+    user,
+    str(formData, "id"),
+    str(formData, "status") as ProposalStatus
+  );
   revalidatePath(`/clients/${clientId}`);
 }
