@@ -17,11 +17,9 @@ env:
   RESOURCE_GROUP: rg-aitracker
   CONTAINER_APP: collab-app
 
-# Required GitHub secrets:
-#   AZURE_CREDENTIALS     (existing service principal JSON)
-#   COLLAB_DATABASE_URL   (Azure Postgres connection string for collab DB)
-#   COLLAB_AUTH_SECRET    (random 32-byte secret; only used once auth is re-enabled)
-# The Container App `collab-app` must already exist (see collab-platform/README.md).
+# Only secret needed: AZURE_CREDENTIALS (existing service principal JSON).
+# DATABASE_URL / AUTH_SECRET are set once on the Container App by
+# collab-platform/scripts/provision-azure.sh and persist across deploys.
 
 jobs:
   build_and_deploy:
@@ -44,23 +42,9 @@ jobs:
             --file collab-platform/Dockerfile \
             collab-platform
 
-      - name: Sync Container App secrets
-        run: |
-          az containerapp secret set \
-            --name ${{ env.CONTAINER_APP }} \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --secrets \
-              database-url="${{ secrets.COLLAB_DATABASE_URL }}" \
-              auth-secret="${{ secrets.COLLAB_AUTH_SECRET }}"
-
       - name: Deploy to Container App
         run: |
           az containerapp update \
             --name ${{ env.CONTAINER_APP }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            --set-env-vars \
-              AUTH_DISABLED=true \
-              AUTH_URL=https://collab.pghnetworks.com \
-              DATABASE_URL=secretref:database-url \
-              AUTH_SECRET=secretref:auth-secret
+            --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}

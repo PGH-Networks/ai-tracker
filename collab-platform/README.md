@@ -65,28 +65,15 @@ This app has its own pipeline (`.github/workflows/deploy-collab.yml`), triggered
 only by changes under `collab-platform/**`. It builds the `collab` image in the
 shared ACR and deploys to its own Container App with its own database.
 
-**One-time Azure setup:**
+**One-time Azure setup:** run [`scripts/provision-azure.sh`](scripts/provision-azure.sh)
+in [Azure Cloud Shell](https://shell.azure.com). It creates the Postgres Flexible
+Server + database, the `collab-app` Container App (ingress on 3000), wires ACR pull
+via managed identity, and sets `DATABASE_URL` / `AUTH_SECRET` as Container App
+secrets (generated in-shell — they never touch GitHub). Idempotent; safe to re-run.
 
-```bash
-# Database (its own Flexible Server)
-az postgres flexible-server create -g rg-aitracker -n pgh-collab-db \
-  --location eastus --admin-user pghadmin --admin-password '<PW>' \
-  --tier Burstable --sku-name Standard_B1ms --storage-size 32 --version 16 \
-  --public-access 0.0.0.0
-az postgres flexible-server db create -g rg-aitracker -s pgh-collab-db -d pgh_collab
-
-# Container App (its own app, ingress on 3000)
-az containerapp create -g rg-aitracker -n collab-app \
-  --environment <your-container-app-env> \
-  --image mcr.microsoft.com/k8se/quickstart:latest \
-  --target-port 3000 --ingress external \
-  --registry-server aitrackeracr.azurecr.io
-```
-
-**Required GitHub secrets:** `AZURE_CREDENTIALS` (existing), `COLLAB_DATABASE_URL`,
-`COLLAB_AUTH_SECRET`. The workflow injects `DATABASE_URL`/`AUTH_SECRET` as Container
-App secrets and runs `prisma migrate deploy` on container start. `AUTH_DISABLED=true`
-is set until we re-enable auth.
+**Only GitHub secret needed:** `AZURE_CREDENTIALS` (already present for AI Tracker).
+The Container App secrets persist across deploys, and the container runs
+`prisma migrate deploy` on start. `AUTH_DISABLED=true` is set until auth is re-enabled.
 
 ## Flagged third-party / paid
 
