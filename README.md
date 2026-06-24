@@ -100,7 +100,7 @@ The app is deployed to Azure Container Apps via GitHub Actions. Every push to `m
 - Alternating white / light blue row striping for readability
 - Expandable description rows
 - Inline status badges and progress bars
-- Edit and delete controls per row
+- An **Edit** button per row (opens the wide add/edit modal; delete lives inside that modal)
 
 ### Kanban Board View
 - Three columns: **Planned / Next**, **In Progress**, **Complete**
