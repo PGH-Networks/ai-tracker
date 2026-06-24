@@ -124,6 +124,13 @@ Add and remove roadmap items independently from tracked projects. Each item disp
 - **→ Project** — opens the Add Project modal pre-filled with the item's title; the roadmap item is automatically removed on save
 - **Remove** — deletes the roadmap item
 
+### AI Site Links
+A shared, persistent link dashboard stored in PostgreSQL — every visitor sees the same links in real time. Collapsible card grid rendered on the PGH-green band below the header.
+
+- Add, edit, and remove links; each is auto-prefixed with `https://` if no scheme is given
+- Favicons auto-fetched per link via Google's favicon service
+- Navy-on-green cards that flip to navy-on-white on hover
+
 ### Import / Export
 - **Export**: Downloads all projects and roadmap data as a timestamped `.json` file.
 - **Import**: Loads a previously exported `.json` file into the database.
@@ -140,6 +147,10 @@ Add and remove roadmap items independently from tracked projects. Each item disp
 | `DELETE` | `/api/projects/:id` | Delete a project |
 | `GET` | `/api/roadmap` | Get roadmap items by bucket |
 | `PUT` | `/api/roadmap` | Replace all roadmap items |
+| `GET` | `/api/tools` | List all AI Site Links |
+| `POST` | `/api/tools` | Create a link `{ label, url }` |
+| `PUT` | `/api/tools/:id` | Update a link's label/URL |
+| `DELETE` | `/api/tools/:id` | Remove a link |
 
 ---
 
@@ -149,10 +160,10 @@ Add and remove roadmap items independently from tracked projects. Each item disp
 |-------|-------------|---------|
 | Name | Project name | Free text (required) |
 | Type | Category of AI work | See [Project Types](#project-types) |
-| Department | Owning department | All, Help Desk, Operations, Finance, Sales & Marketing |
+| Department | Owning department | Help Desk, Operations, Finance, Sales & Marketing |
 | AI Tool | Primary tool in use | Claude, Hatz, Co-Pilot, N8N, Other |
 | Use Case | Audience / deployment scope | Internal, Client-Facing, Both, External / Public |
-| Project Champion | Employee responsible for the project | Bill, Greg, Derek, Mark, Dylan, Isaac, Tony, Geno, Howard, Chris |
+| Project Champion | Employee responsible for the project | Bill, Chad, Chris, Derek, Dylan, Geno, Greg, Howard, Isaac, Jeremy, Jessica, Josh D, Josh W, Lauren, Mark, Matt Shaginaw, Sean, Tony |
 | Status | Current lifecycle stage | Planned, In Progress, Complete |
 | Completion % | Numeric progress (0–100) | Integer |
 | Description | What the project does | Free text |
@@ -167,6 +178,7 @@ Add and remove roadmap items independently from tracked projects. Each item disp
 - Data Analysis
 - Workflow Integration
 - Training & Enablement
+- Software Development
 - Other
 
 ---
@@ -195,7 +207,17 @@ CREATE TABLE roadmap (
   title TEXT NOT NULL,
   sort_order INTEGER DEFAULT 0
 );
+
+CREATE TABLE tool_links (
+  id SERIAL PRIMARY KEY,
+  label TEXT NOT NULL,
+  url TEXT NOT NULL,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 ```
+
+Tables are auto-created by `server.js` on startup (`CREATE TABLE IF NOT EXISTS`); `schema.sql` is a reference copy.
 
 **Status values:** `"next"` (Planned), `"doing"` (In Progress), `"done"` (Complete)
 
