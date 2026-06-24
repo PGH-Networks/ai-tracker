@@ -496,16 +496,18 @@
   /* ROW ACTIONS */
   .row-actions { display: flex; gap: 6px; }
   .icon-btn {
-    border: none;
-    background: none;
+    border: 1px solid #e2e8f0;
+    background: #fff;
     cursor: pointer;
-    padding: 5px;
+    padding: 5px 12px;
     border-radius: 6px;
-    font-size: 1rem;
-    transition: background 0.15s;
-    line-height: 1;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--primary);
+    transition: background 0.15s, border-color 0.15s;
+    line-height: 1.2;
   }
-  .icon-btn:hover { background: #f1f5f9; }
+  .icon-btn:hover { background: #f1f5f9; border-color: var(--primary); }
 
   /* KANBAN VIEW */
   .kanban-board {
@@ -1026,6 +1028,7 @@
           <select id="f-champion">
             <option value="">— Select Champion —</option>
             <option value="Bill">Bill</option>
+            <option value="Blake">Blake</option>
             <option value="Chad">Chad</option>
             <option value="Chris">Chris</option>
             <option value="Derek">Derek</option>
@@ -1041,7 +1044,6 @@
             <option value="Lauren">Lauren</option>
             <option value="Mark">Mark</option>
             <option value="Matt Shaginaw">Matt Shaginaw</option>
-            <option value="Sean">Sean</option>
             <option value="Tony">Tony</option>
           </select>
         </div>
@@ -1054,8 +1056,12 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Notes / Next Steps</label>
-        <textarea id="f-notes" placeholder="Key milestones, blockers, next steps..."></textarea>
+        <label>Notes</label>
+        <textarea id="f-notes" placeholder="Key milestones, context, blockers..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Next Steps</label>
+        <textarea id="f-next-steps" placeholder="What happens next — upcoming actions and owners..."></textarea>
       </div>
     </div>
     <div class="modal-footer">
@@ -1138,6 +1144,7 @@ async function loadData() {
       id: p.id, name: p.name, type: p.type, dept: p.dept,
       desc: p.description, tool: p.tool, use: p.use_case,
       status: p.status, pct: p.pct, notes: p.notes,
+      nextSteps: p.next_steps,
       champion: p.champion, createdAt: p.created_at
     }));
     roadmap = await rRes.json();
@@ -1421,7 +1428,7 @@ function renderTable(items) {
       <td style="max-width:200px;color:var(--muted);font-size:0.8rem">${p.notes ? esc(p.notes).slice(0,80) + (p.notes.length>80?'…':'') : '—'}</td>
       <td>
         <div class="row-actions">
-          <button class="icon-btn" title="Edit" onclick="openEditModal('${p.id}')">✏️</button>
+          <button class="icon-btn" title="Edit" onclick="openEditModal('${p.id}')">Edit</button>
         </div>
       </td>
     </tr>`;
@@ -1465,7 +1472,7 @@ function renderKanban(items) {
           </div>
         </div>
         <div class="kc-actions">
-          <button class="icon-btn" onclick="openEditModal('${p.id}')">✏️</button>
+          <button class="icon-btn" onclick="openEditModal('${p.id}')">Edit</button>
         </div>
       </div>`;
     }).join('') : `<div style="text-align:center;padding:20px;color:var(--muted);font-size:0.8rem">No projects</div>`;
@@ -1558,6 +1565,7 @@ function openAddModal() {
   document.getElementById('f-pct').value = 50;
   document.getElementById('pct-val').textContent = '50%';
   document.getElementById('f-notes').value = '';
+  document.getElementById('f-next-steps').value = '';
   document.getElementById('f-champion').value = '';
   document.getElementById('projectModal').classList.add('open');
   setTimeout(() => document.getElementById('f-name').focus(), 100);
@@ -1589,6 +1597,7 @@ function openEditModal(id) {
   document.getElementById('f-pct').value = p.pct || 0;
   document.getElementById('pct-val').textContent = (p.pct||0) + '%';
   document.getElementById('f-notes').value = p.notes || '';
+  document.getElementById('f-next-steps').value = p.nextSteps || '';
   document.getElementById('f-champion').value = p.champion || '';
   document.getElementById('projectModal').classList.add('open');
 }
@@ -1621,6 +1630,7 @@ async function saveProject() {
     status: document.getElementById('f-status').value,
     pct: Number(document.getElementById('f-pct').value),
     notes: document.getElementById('f-notes').value.trim(),
+    next_steps: document.getElementById('f-next-steps').value.trim(),
     champion: document.getElementById('f-champion').value,
   };
 

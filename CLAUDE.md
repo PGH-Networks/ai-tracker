@@ -36,7 +36,7 @@ All data is fetched from the API on page load (`loadData()`). Filtering, sorting
 
 ### Database Tables
 
-**projects** — `id TEXT PK`, `name`, `type`, `dept`, `description`, `tool`, `use_case`, `status` (`next`/`doing`/`done`), `pct` (0–100), `notes`, `champion`, `created_at`
+**projects** — `id TEXT PK`, `name`, `type`, `dept`, `description`, `tool`, `use_case`, `status` (`next`/`doing`/`done`), `pct` (0–100), `notes`, `next_steps`, `champion`, `created_at`
 
 **roadmap** — `id SERIAL PK`, `bucket` (`soon`/`mid`/`later`), `title`, `sort_order`
 
@@ -49,7 +49,7 @@ All data is fetched from the API on page load (`loadData()`). Filtering, sorting
 | **AI Tool** | Claude, Hatz, Co-Pilot, N8N, Other |
 | **Use Case** | Internal, Client-Facing, Both, External / Public |
 | **Status** | `done` (Complete), `doing` (In Progress), `next` (Planned) |
-| **Champion** | Bill, Chad, Chris, Derek, Dylan, Geno, Greg, Howard, Isaac, Jeremy, Jessica, Josh D, Josh W, Lauren, Mark, Matt Shaginaw, Sean, Tony |
+| **Champion** | Bill, Blake, Chad, Chris, Derek, Dylan, Geno, Greg, Howard, Isaac, Jeremy, Jessica, Josh D, Josh W, Lauren, Mark, Matt Shaginaw, Tony |
 
 ### Frontend State
 

@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS projects (
   status      TEXT        DEFAULT 'next',   -- 'next' | 'doing' | 'done'
   pct         INTEGER     DEFAULT 0,        -- 0–100
   notes       TEXT,
+  next_steps  TEXT,
   champion    TEXT,
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
