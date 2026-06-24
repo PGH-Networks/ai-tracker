@@ -100,7 +100,7 @@ The app is deployed to Azure Container Apps via GitHub Actions. Every push to `m
 - Alternating white / light blue row striping for readability
 - Expandable description rows
 - Inline status badges and progress bars
-- Edit and delete controls per row
+- An **Edit** button per row (opens the wide add/edit modal; delete lives inside that modal)
 
 ### Kanban Board View
 - Three columns: **Planned / Next**, **In Progress**, **Complete**
@@ -163,11 +163,12 @@ A shared, persistent link dashboard stored in PostgreSQL — every visitor sees 
 | Department | Owning department | Help Desk, Operations, Finance, Sales & Marketing |
 | AI Tool | Primary tool in use | Claude, Hatz, Co-Pilot, N8N, Other |
 | Use Case | Audience / deployment scope | Internal, Client-Facing, Both, External / Public |
-| Project Champion | Employee responsible for the project | Bill, Chad, Chris, Derek, Dylan, Geno, Greg, Howard, Isaac, Jeremy, Jessica, Josh D, Josh W, Lauren, Mark, Matt Shaginaw, Sean, Tony |
+| Project Champion | Employee responsible for the project | Bill, Blake, Chad, Chris, Derek, Dylan, Geno, Greg, Howard, Isaac, Jeremy, Jessica, Josh D, Josh W, Lauren, Mark, Matt Shaginaw, Tony |
 | Status | Current lifecycle stage | Planned, In Progress, Complete |
 | Completion % | Numeric progress (0–100) | Integer |
-| Description | What the project does | Free text |
-| Notes | Milestones, blockers, next steps | Free text |
+| Description | What the project does ("What It Does") | Free text |
+| Notes | Milestones, context, blockers | Free text |
+| Next Steps | Upcoming actions and owners | Free text |
 
 ### Project Types
 - Automation
@@ -197,6 +198,7 @@ CREATE TABLE projects (
   status TEXT DEFAULT 'next',
   pct INTEGER DEFAULT 0,
   notes TEXT,
+  next_steps TEXT,
   champion TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );

@@ -29,6 +29,7 @@ async function initDb() {
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
     ALTER TABLE projects ADD COLUMN IF NOT EXISTS champion TEXT;
+    ALTER TABLE projects ADD COLUMN IF NOT EXISTS next_steps TEXT;
     CREATE TABLE IF NOT EXISTS roadmap (
       id SERIAL PRIMARY KEY,
       bucket TEXT NOT NULL,
@@ -53,21 +54,21 @@ app.get('/api/projects', async (req, res) => {
 });
 
 app.post('/api/projects', async (req, res) => {
-  const { id, name, type, dept, description, tool, use_case, status, pct, notes, champion } = req.body;
+  const { id, name, type, dept, description, tool, use_case, status, pct, notes, next_steps, champion } = req.body;
   const { rows } = await pool.query(
-    `INSERT INTO projects (id, name, type, dept, description, tool, use_case, status, pct, notes, champion)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
-    [id, name, type, dept, description, tool, use_case, status, pct, notes, champion]
+    `INSERT INTO projects (id, name, type, dept, description, tool, use_case, status, pct, notes, next_steps, champion)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+    [id, name, type, dept, description, tool, use_case, status, pct, notes, next_steps, champion]
   );
   res.status(201).json(rows[0]);
 });
 
 app.put('/api/projects/:id', async (req, res) => {
-  const { name, type, dept, description, tool, use_case, status, pct, notes, champion } = req.body;
+  const { name, type, dept, description, tool, use_case, status, pct, notes, next_steps, champion } = req.body;
   const { rows } = await pool.query(
     `UPDATE projects SET name=$1, type=$2, dept=$3, description=$4, tool=$5,
-     use_case=$6, status=$7, pct=$8, notes=$9, champion=$10 WHERE id=$11 RETURNING *`,
-    [name, type, dept, description, tool, use_case, status, pct, notes, champion, req.params.id]
+     use_case=$6, status=$7, pct=$8, notes=$9, next_steps=$10, champion=$11 WHERE id=$12 RETURNING *`,
+    [name, type, dept, description, tool, use_case, status, pct, notes, next_steps, champion, req.params.id]
   );
   if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
   res.json(rows[0]);

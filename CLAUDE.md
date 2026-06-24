@@ -36,7 +36,7 @@ All data is fetched from the API on page load (`loadData()`). Filtering, sorting
 
 ### Database Tables
 
-**projects** — `id TEXT PK`, `name`, `type`, `dept`, `description`, `tool`, `use_case`, `status` (`next`/`doing`/`done`), `pct` (0–100), `notes`, `champion`, `created_at`
+**projects** — `id TEXT PK`, `name`, `type`, `dept`, `description`, `tool`, `use_case`, `status` (`next`/`doing`/`done`), `pct` (0–100), `notes`, `next_steps`, `champion`, `created_at`
 
 **roadmap** — `id SERIAL PK`, `bucket` (`soon`/`mid`/`later`), `title`, `sort_order`
 
@@ -49,7 +49,9 @@ All data is fetched from the API on page load (`loadData()`). Filtering, sorting
 | **AI Tool** | Claude, Hatz, Co-Pilot, N8N, Other |
 | **Use Case** | Internal, Client-Facing, Both, External / Public |
 | **Status** | `done` (Complete), `doing` (In Progress), `next` (Planned) |
-| **Champion** | Bill, Chad, Chris, Derek, Dylan, Geno, Greg, Howard, Isaac, Jeremy, Jessica, Josh D, Josh W, Lauren, Mark, Matt Shaginaw, Sean, Tony |
+| **Champion** | Bill, Blake, Chad, Chris, Derek, Dylan, Geno, Greg, Howard, Isaac, Jeremy, Jessica, Josh D, Josh W, Lauren, Mark, Matt Shaginaw, Tony |
+
+**Free-text fields:** Name (required), **What It Does** (`description`), **Notes** (`notes`), and **Next Steps** (`next_steps`). Notes and Next Steps are separate textareas in the form — Notes captures context/blockers, Next Steps captures upcoming actions and owners.
 
 ### Frontend State
 
@@ -101,6 +103,8 @@ Three visually distinct bands at the top of the page:
 
 - **Controls bar** — Horizontal filter row (Search, Status, Department, AI Tool, Use) with labels stacked above inputs (`flex-direction: column`). `+ Add Project` (navy) and Table/Kanban toggle are right-aligned via `.view-toggle`.
 - **Empty state** — Includes a live `+ Add Project` button so users can act without scrolling back to the controls bar.
+- **Row actions** — Each table row and kanban card has a text **Edit** button (`.icon-btn`, styled as a small outlined button) that opens the edit modal via `openEditModal(id)`.
+- **Project modal** — The Add/Edit project modal (`#projectModal`) is double the base `.modal` width (`max-width: 1120px` vs `560px`) to fit the expanded form; the roadmap and tool modals keep the base width.
 - **Roadmap header** — Plain text heading (no emoji), Syne font.
 
 ## AI Site Links
