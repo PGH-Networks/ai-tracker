@@ -38,7 +38,7 @@ All data is fetched from the API on page load (`loadData()`). Filtering, sorting
 
 **projects** — `id TEXT PK`, `name`, `type`, `dept`, `description`, `tool`, `use_case`, `status` (`next`/`doing`/`done`), `pct` (0–100), `notes`, `champion`, `created_at`
 
-**roadmap_items** — `id SERIAL PK`, `bucket` (`soon`/`mid`/`later`), `text`, `sort_order`, `created_at`
+**roadmap** — `id SERIAL PK`, `bucket` (`soon`/`mid`/`later`), `title`, `sort_order`
 
 ### Project Field Options
 
