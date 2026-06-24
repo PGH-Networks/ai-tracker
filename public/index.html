@@ -711,6 +711,9 @@
     animation: modalIn 0.2s ease;
   }
 
+  /* Project add/edit modal is wider (doubled) for the expanded form */
+  #projectModal .modal { max-width: 1120px; }
+
   @keyframes modalIn {
     from { transform: scale(0.95); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
