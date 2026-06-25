@@ -68,7 +68,7 @@ Key functions: `renderAll()` → `renderTable()` / `renderKanban()` / `renderRoa
 
 PGH Networks brand colors: navy `#02264F`, green `#68F98F`. The header uses a diagonal gradient between these. All interactive accents (focus rings, active buttons, sort indicators, form saves) use `--primary: #02264F` — there is no purple in the design.
 
-**Typography:** [Syne](https://fonts.google.com/specimen/Syne) (600–800 weight) for headings (`h1, h2, h3`); [DM Sans](https://fonts.google.com/specimen/DM+Sans) for body text and stat numbers. Loaded via Google Fonts in `<head>`. Stat numbers use DM Sans specifically to avoid the flattened numeral appearance of Syne.
+**Typography:** [Inter](https://fonts.google.com/specimen/Inter) is used throughout — headings (`h1, h2, h3`), body, and stat numbers — with a `'Helvetica Neue', Arial` fallback stack. Loaded via Google Fonts in `<head>`. Inter is the free web substitute for the PGH brand typeface **Berthold Akzidenz-Grotesk** (a licensed font that can't be loaded on the web); it shares the same neutral neo-grotesque character. Headings carry a slight negative tracking (`letter-spacing: -0.015em`) for the Akzidenz feel. The header subtitle is set in *italic* to echo the brand's **Aller Italic** tagline treatment. Source of truth: the PGH logo/brand sheet (`PGH Logo - New Final.pdf`) specifies Akzidenz-Grotesk + Aller.
 
 ### CSS Variables
 
