@@ -954,6 +954,84 @@
   /* Status badges & chips — pills */
   .status-badge { border-radius: 999px; }
   .dept-chip, .tool-chip, .use-chip, .champion-chip { border-radius: 999px; }
+
+  /* AI Site Links — frosted green band with translucent tool cards */
+  .tools-hub {
+    background: linear-gradient(135deg, rgba(104,249,143,0.92) 0%, rgba(104,249,143,0.74) 100%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    backdrop-filter: blur(10px) saturate(140%);
+    border-bottom: 1px solid rgba(2,38,79,0.18);
+    box-shadow: 0 8px 26px rgba(2,38,79,0.12);
+  }
+  .tool-card {
+    background: rgba(255,255,255,0.38);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.55);
+    border-radius: 14px;
+  }
+
+  /* Kanban — glass columns & cards */
+  .kanban-col {
+    background: rgba(255,255,255,0.5);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 18px;
+    box-shadow: 0 10px 34px rgba(2,38,79,0.12);
+  }
+  .kanban-header { border-bottom: 1px solid rgba(2,38,79,0.08); }
+  .kanban-card {
+    background: rgba(255,255,255,0.55);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 14px;
+  }
+  .kanban-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(2,38,79,0.16); }
+
+  /* Roadmap — glass card & frosted items */
+  .roadmap-section {
+    background: rgba(255,255,255,0.5);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 18px;
+    box-shadow: 0 10px 34px rgba(2,38,79,0.12);
+  }
+  .roadmap-header { border-bottom: 1px solid rgba(2,38,79,0.08); }
+  .roadmap-col { border-right: 1px solid rgba(2,38,79,0.07); }
+  .roadmap-item {
+    background: rgba(255,255,255,0.45);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    border-radius: 12px;
+    border-left: 3px solid transparent;
+  }
+  .roadmap-add-btn { border-radius: 12px; }
+
+  /* Modals — frosted glass (opaque enough to stay readable) */
+  .modal-overlay {
+    background: rgba(2,38,79,0.55);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+  .modal {
+    background: rgba(255,255,255,0.95);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    backdrop-filter: blur(28px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 22px;
+    box-shadow: 0 30px 70px rgba(2,38,79,0.35);
+  }
+  .modal-header { border-bottom: 1px solid rgba(2,38,79,0.08); }
+  .modal-footer { border-top: 1px solid rgba(2,38,79,0.08); }
+  .form-group input, .form-group select, .form-group textarea {
+    border-radius: 12px;
+    border: 1.5px solid rgba(2,38,79,0.12);
+    background: rgba(255,255,255,0.75);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(104,249,143,0.32);
+  }
 </style>
 </head>
 <body>
